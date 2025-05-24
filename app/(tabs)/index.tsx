@@ -34,15 +34,12 @@ export default function HomeScreen() {
           backgroundColor: colors.card,
           marginLeft: index % 2 === 0 ? 0 : 8,
           marginRight: index % 2 === 0 ? 8 : 0,
-          ...Platform.select({
-            web: { 
-              textDecoration: 'none',
-              display: 'block',
-              width: 'calc(50% - 8px)'
-            },
-            default: {
-              width: '48%'
-            }
+          ...(Platform.OS === 'web' ? { 
+            display: 'block',
+            width: 'calc(50% - 8px)',
+            textDecoration: 'none'
+          } : {
+            width: '48%'
           })
         }
       ]}

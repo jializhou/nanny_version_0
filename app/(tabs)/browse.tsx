@@ -205,10 +205,7 @@ export default function BrowseScreen() {
                 </Text>
                 <Link 
                   href={`/caregiver/${item.id}`}
-                  style={Platform.select({
-                    web: { textDecoration: 'none' },
-                    default: {}
-                  })}
+                  style={Platform.OS === 'web' ? { textDecoration: 'none' } : {}}
                 >
                   <View style={[styles.contactButton, { backgroundColor: colors.primary }]}>
                     <Text style={styles.contactButtonText}>联系阿姨</Text>
