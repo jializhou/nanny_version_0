@@ -1,21 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   View, 
   Text, 
   StyleSheet, 
   ScrollView, 
-  TextInput, 
   TouchableOpacity,
   Image,
   Platform,
   FlatList
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Search, MapPin, Filter, Star } from 'lucide-react-native';
+import { Star } from 'lucide-react-native';
 import { Link } from 'expo-router';
 import { useColorScheme } from 'react-native';
 import Colors from '@/constants/Colors';
-import LanguageToggle from '@/components/LanguageToggle';
 import { featuredCaregivers } from '@/data/caregivers';
 import CitySelector from '@/components/CitySelector';
 import FilterModal from '@/components/FilterModal';
@@ -25,7 +23,6 @@ export default function HomeScreen() {
   const { t } = useTranslation();
   const colors = Colors[colorScheme ?? 'light'];
   
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState('武汉');
   const [isCitySelectorVisible, setCitySelectorVisible] = useState(false);
   const [isFilterModalVisible, setFilterModalVisible] = useState(false);
@@ -90,53 +87,12 @@ export default function HomeScreen() {
             style={styles.locationButton} 
             onPress={() => setCitySelectorVisible(true)}
           >
-            <MapPin size={14} color={colors.primary} />
             <Text style={[styles.locationText, { color: colors.primary }]}>
               {selectedCity}
             </Text>
           </TouchableOpacity>
         </View>
-        <LanguageToggle />
       </View>
-
-      <View style={styles.searchContainer}>
-        <View style={[styles.searchInputContainer, { backgroundColor: colors.card }]}>
-          <Search size={20} color={colors.text} />
-          <TextInput
-            style={[styles.searchInput, { color: colors.text }]}
-            placeholder={t('home.searchPlaceholder')}
-            placeholderTextColor={colors.textDim}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-        </View>
-        <TouchableOpacity 
-          style={[styles.filterButton, { backgroundColor: colors.primary }]}
-          onPress={() => setFilterModalVisible(true)}
-        >
-          <Filter size={20} color="#fff" />
-        </TouchableOpacity>
-      </View>
-
-      {activeFilters.length > 0 && (
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          style={styles.filtersScrollView}
-          contentContainerStyle={styles.filtersContainer}
-        >
-          {activeFilters.map(filter => (
-            <View 
-              key={filter}
-              style={[styles.filterChip, { backgroundColor: colors.primaryLight }]}
-            >
-              <Text style={[styles.filterChipText, { color: colors.primary }]}>
-                {t(`filters.${filter.toLowerCase()}`)}
-              </Text>
-            </View>
-          ))}
-        </ScrollView>
-      )}
 
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
@@ -177,18 +133,6 @@ export default function HomeScreen() {
           setCitySelectorVisible(false);
         }}
       />
-
-      <FilterModal
-        visible={isFilterModalVisible}
-        onClose={() => setFilterModalVisible(false)}
-        onApply={(filters, age) => {
-          setActiveFilters(filters);
-          setAgeRange(age);
-          setFilterModalVisible(false);
-        }}
-        activeFilters={activeFilters}
-        ageRange={ageRange}
-      />
     </ScrollView>
   );
 }
@@ -218,35 +162,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   locationText: {
-    marginLeft: 4,
     fontFamily: 'Inter-Medium',
     fontSize: 14,
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    marginBottom: 24,
-  },
-  searchInputContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginRight: 12,
-  },
-  searchInput: {
-    flex: 1,
-    marginLeft: 8,
-    fontFamily: 'Inter-Regular',
-    fontSize: 16,
-  },
-  filterButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   section: {
     marginBottom: 24,
@@ -313,22 +230,5 @@ const styles = StyleSheet.create({
   categoryText: {
     fontFamily: 'Inter-Medium',
     fontSize: 14,
-  },
-  filtersScrollView: {
-    maxHeight: 40,
-    marginBottom: 16,
-  },
-  filtersContainer: {
-    paddingHorizontal: 16,
-  },
-  filterChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    marginRight: 8,
-  },
-  filterChipText: {
-    fontSize: 12,
-    fontFamily: 'Inter-Medium',
   },
 });

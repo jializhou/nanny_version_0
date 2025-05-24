@@ -27,13 +27,36 @@ export default function BrowseScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [ageRange, setAgeRange] = useState([25, 55]);
+  const [filteredCaregivers, setFilteredCaregivers] = useState(allCaregivers);
   
-  const toggleFilter = (filter: string) => {
-    if (activeFilters.includes(filter)) {
-      setActiveFilters(activeFilters.filter(f => f !== filter));
-    } else {
-      setActiveFilters([...activeFilters, filter]);
+  const handleSearch = (text: string) => {
+    setSearchQuery(text);
+    const searchLower = text.toLowerCase();
+    const filtered = allCaregivers.filter(caregiver => 
+      caregiver.name.toLowerCase().includes(searchLower) ||
+      caregiver.specialty.toLowerCase().includes(searchLower) ||
+      caregiver.skills.some(skill => skill.toLowerCase().includes(searchLower))
+    );
+    setFilteredCaregivers(filtered);
+  };
+
+  const handleFilters = (filters: string[], age: number[]) => {
+    setActiveFilters(filters);
+    setAgeRange(age);
+    
+    let filtered = allCaregivers;
+    
+    if (filters.length > 0) {
+      filtered = filtered.filter(caregiver =>
+        filters.some(filter => 
+          caregiver.skills.includes(filter) || 
+          caregiver.specialty.includes(filter)
+        )
+      );
     }
+    
+    setFilteredCaregivers(filtered);
   };
 
   const CardLink = Platform.select({
@@ -51,8 +74,13 @@ export default function BrowseScreen() {
             placeholder={t('browse.searchPlaceholder')}
             placeholderTextColor={colors.textDim}
             value={searchQuery}
-            onChangeText={setSearchQuery}
+            onChangeText={handleSearch}
           />
+          {searchQuery ? (
+            <TouchableOpacity onPress={() => handleSearch('')}>
+              <X size={20} color={colors.textDim} />
+            </TouchableOpacity>
+          ) : null}
         </View>
         <TouchableOpacity 
           style={[styles.filterButton, { backgroundColor: colors.primary }]}
@@ -65,27 +93,25 @@ export default function BrowseScreen() {
       {activeFilters.length > 0 && (
         <ScrollView 
           horizontal 
-          showsHorizontalScrollIndicator={false} 
+          showsHorizontalScrollIndicator={false}
           style={styles.filtersScrollView}
           contentContainerStyle={styles.filtersContainer}
         >
           {activeFilters.map(filter => (
-            <TouchableOpacity 
+            <View 
               key={filter}
               style={[styles.filterChip, { backgroundColor: colors.primaryLight }]}
-              onPress={() => toggleFilter(filter)}
             >
               <Text style={[styles.filterChipText, { color: colors.primary }]}>
-                {t(`filters.${filter.toLowerCase()}`)}
+                {filter}
               </Text>
-              <X size={14} color={colors.primary} />
-            </TouchableOpacity>
+            </View>
           ))}
         </ScrollView>
       )}
 
       <FlatList
-        data={allCaregivers}
+        data={filteredCaregivers}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.caregiverListContent}
         showsVerticalScrollIndicator={false}
@@ -120,7 +146,7 @@ export default function BrowseScreen() {
                     </Text>
                   </View>
                   <Text style={[styles.caregiverRate, { color: colors.primary }]}>
-                    ${item.hourlyRate}/hr
+                    ¥{item.hourlyRate}/小时
                   </Text>
                 </View>
               </View>
@@ -132,11 +158,9 @@ export default function BrowseScreen() {
       <FilterModal
         visible={filterModalVisible}
         onClose={() => setFilterModalVisible(false)}
-        onApply={(filters) => {
-          setActiveFilters(filters);
-          setFilterModalVisible(false);
-        }}
+        onApply={handleFilters}
         activeFilters={activeFilters}
+        ageRange={ageRange}
       />
     </View>
   );
@@ -163,6 +187,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     marginLeft: 8,
+    marginRight: 8,
     fontFamily: 'Inter-Regular',
     fontSize: 16,
   },
@@ -191,7 +216,6 @@ const styles = StyleSheet.create({
   filterChipText: {
     fontFamily: 'Inter-Medium',
     fontSize: 12,
-    marginRight: 4,
   },
   caregiverListContent: {
     paddingBottom: 20,
