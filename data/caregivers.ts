@@ -3,6 +3,8 @@ interface Caregiver {
   name: string;
   imageUrl: string;
   city: string;
+  hometown: string;
+  age: number;
   specialty: string;
   monthlySalary: number;
   rating: number;
@@ -20,6 +22,8 @@ export const featuredCaregivers: Caregiver[] = [
     name: '王淑芳',
     imageUrl: 'https://images.pexels.com/photos/3768167/pexels-photo-3768167.jpeg',
     city: '武汉',
+    hometown: '湖北武汉',
+    age: 45,
     specialty: '育婴护理',
     monthlySalary: 8000,
     rating: 4.9,
@@ -35,6 +39,8 @@ export const featuredCaregivers: Caregiver[] = [
     name: '张丽华',
     imageUrl: 'https://images.pexels.com/photos/3831612/pexels-photo-3831612.jpeg',
     city: '北京',
+    hometown: '河北石家庄',
+    age: 48,
     specialty: '老人护理',
     monthlySalary: 9500,
     rating: 4.8,
@@ -50,6 +56,8 @@ export const featuredCaregivers: Caregiver[] = [
     name: '李秀英',
     imageUrl: 'https://images.pexels.com/photos/3979287/pexels-photo-3979287.jpeg',
     city: '上海',
+    hometown: '江苏南京',
+    age: 42,
     specialty: '保洁做饭',
     monthlySalary: 7500,
     rating: 4.7,
@@ -65,6 +73,8 @@ export const featuredCaregivers: Caregiver[] = [
     name: '陈玉兰',
     imageUrl: 'https://images.pexels.com/photos/3768114/pexels-photo-3768114.jpeg',
     city: '广州',
+    hometown: '广东广州',
+    age: 46,
     specialty: '住家保姆',
     monthlySalary: 8500,
     rating: 4.8,
@@ -84,6 +94,8 @@ export const allCaregivers: Caregiver[] = [
     name: '周桂芝',
     imageUrl: 'https://images.pexels.com/photos/3771836/pexels-photo-3771836.jpeg',
     city: '深圳',
+    hometown: '湖南长沙',
+    age: 50,
     specialty: '月嫂',
     monthlySalary: 12000,
     rating: 4.9,
@@ -99,6 +111,8 @@ export const allCaregivers: Caregiver[] = [
     name: '刘春花',
     imageUrl: 'https://images.pexels.com/photos/3791664/pexels-photo-3791664.jpeg',
     city: '成都',
+    hometown: '四川成都',
+    age: 38,
     specialty: '育儿嫂',
     monthlySalary: 8000,
     rating: 4.7,
@@ -114,6 +128,8 @@ export const allCaregivers: Caregiver[] = [
     name: '孙金凤',
     imageUrl: 'https://images.pexels.com/photos/3876366/pexels-photo-3876366.jpeg',
     city: '杭州',
+    hometown: '浙江金华',
+    age: 44,
     specialty: '钟点工',
     monthlySalary: 6000,
     rating: 4.8,
@@ -129,6 +145,8 @@ export const allCaregivers: Caregiver[] = [
     name: '赵月琴',
     imageUrl: 'https://images.pexels.com/photos/3876387/pexels-photo-3876387.jpeg',
     city: '重庆',
+    hometown: '重庆',
+    age: 47,
     specialty: '照护老人',
     monthlySalary: 7500,
     rating: 4.6,
