@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'react-native';
-import { X, Search } from 'lucide-react-native';
+import { X, Search, Calendar } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import { cities } from '@/data/cities';
@@ -25,18 +25,6 @@ interface FilterModalProps {
 }
 
 const DEFAULT_SALARY_RANGE = [3000, 100000];
-const START_TIMES = [
-  '2025年6月初',
-  '2025年6月中旬',
-  '2025年6月下旬',
-  '2025年7月初',
-  '2025年7月中旬',
-  '2025年7月下旬',
-  '2025年8月初',
-  '2025年8月中旬',
-  '2025年8月下旬',
-  '2025年9月及以后'
-];
 
 export default function FilterModal({ 
   visible, 
@@ -53,13 +41,14 @@ export default function FilterModal({
   const [salaryRange, setSalaryRange] = useState(initialSalaryRange);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
-  const [selectedStartTime, setSelectedStartTime] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   useEffect(() => {
     if (visible) {
       setSelectedFilters(activeFilters);
       setSalaryRange(initialSalaryRange || DEFAULT_SALARY_RANGE);
-      setSelectedStartTime(null);
+      setSelectedDate(null);
     }
   }, [visible, activeFilters, initialSalaryRange]);
   
@@ -76,7 +65,7 @@ export default function FilterModal({
     setSalaryRange(DEFAULT_SALARY_RANGE);
     setSearchQuery('');
     setSelectedCity(null);
-    setSelectedStartTime(null);
+    setSelectedDate(null);
   };
   
   const handleApply = () => {
@@ -84,7 +73,7 @@ export default function FilterModal({
     if (selectedCity) {
       allFilters.push(selectedCity);
     }
-    onApply(allFilters, salaryRange, selectedStartTime || undefined);
+    onApply(allFilters, salaryRange, selectedDate?.toISOString());
     onClose();
   };
 
@@ -100,6 +89,21 @@ export default function FilterModal({
         city.name.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : cities;
+
+  const formatDate = (date: Date) => {
+    return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+  };
+
+  const generateDateOptions = () => {
+    const dates = [];
+    const startDate = new Date(2025, 5, 1); // June 1, 2025
+    for (let i = 0; i < 90; i++) { // Generate dates for 3 months
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + i);
+      dates.push(date);
+    }
+    return dates;
+  };
 
   return (
     <Modal
@@ -124,32 +128,38 @@ export default function FilterModal({
               <Text style={[styles.sectionTitle, { color: colors.text }]}>
                 最早开始时间
               </Text>
-              <View style={styles.startTimeContainer}>
-                {START_TIMES.map((time) => (
-                  <TouchableOpacity
-                    key={time}
-                    style={[
-                      styles.startTimeButton,
-                      selectedStartTime === time
-                        ? { backgroundColor: colors.primaryLight, borderColor: colors.primary }
-                        : { backgroundColor: colors.card, borderColor: colors.border }
-                    ]}
-                    onPress={() => setSelectedStartTime(time)}
-                  >
-                    <Text
+              <View style={styles.datePickerContainer}>
+                <ScrollView 
+                  style={styles.dateList}
+                  showsVerticalScrollIndicator={false}
+                >
+                  {generateDateOptions().map((date) => (
+                    <TouchableOpacity
+                      key={date.toISOString()}
                       style={[
-                        styles.startTimeText,
-                        { 
-                          color: selectedStartTime === time 
-                            ? colors.primary 
-                            : colors.text 
+                        styles.dateOption,
+                        selectedDate?.toDateString() === date.toDateString() && {
+                          backgroundColor: colors.primaryLight,
+                          borderColor: colors.primary,
                         }
                       ]}
+                      onPress={() => setSelectedDate(date)}
                     >
-                      {time}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+                      <Text
+                        style={[
+                          styles.dateText,
+                          {
+                            color: selectedDate?.toDateString() === date.toDateString()
+                              ? colors.primary
+                              : colors.text
+                          }
+                        ]}
+                      >
+                        {formatDate(date)}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
               </View>
             </View>
 
@@ -447,20 +457,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Inter-SemiBold',
   },
-  startTimeContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginHorizontal: -4,
+  datePickerContainer: {
+    marginTop: 8,
   },
-  startTimeButton: {
+  dateList: {
+    maxHeight: 200,
+  },
+  dateOption: {
+    paddingVertical: 12,
     paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-    margin: 4,
+    borderRadius: 8,
+    marginBottom: 8,
     borderWidth: 1,
+    borderColor: '#eaeaea',
   },
-  startTimeText: {
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
-  },
+  dateText: {
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+  }
 });
