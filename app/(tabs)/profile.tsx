@@ -56,11 +56,11 @@ export default function ProfileScreen() {
   };
 
   const handlePostJob = () => {
-    Alert.alert('招聘阿姨', '即将上线，敬请期待！');
+    router.push('/profile/post-job');
   };
 
   const handleFindWork = () => {
-    Alert.alert('阿姨求职', '即将上线，敬请期待！');
+    router.push('/profile/find-work');
   };
 
   return (
