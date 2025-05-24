@@ -32,6 +32,9 @@ const SESSION_TIMESTAMP_KEY = '@auth_session_timestamp';
 // Session duration in milliseconds (12 hours)
 const SESSION_DURATION = 12 * 60 * 60 * 1000;
 
+// List of routes that don't require authentication
+const publicRoutes = ['/', '/browse'];
+
 // Provider component
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -39,6 +42,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const segments = useSegments();
   const { t } = useTranslation();
+
+  // Check if the current route is public
+  const isPublicRoute = () => {
+    const path = '/' + segments.join('/');
+    return publicRoutes.includes(path);
+  };
 
   // Check if the session is still valid
   const isSessionValid = async () => {
@@ -99,8 +108,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const inAuthGroup = segments[0] === '(auth)';
 
-    if (!user && !inAuthGroup) {
-      // Redirect to login if not authenticated and not already on an auth screen
+    if (!user && !inAuthGroup && !isPublicRoute()) {
+      // Redirect to login if not authenticated and not on a public or auth route
       router.replace('/login');
     } else if (user && inAuthGroup) {
       // Redirect to home if authenticated but still on an auth screen
