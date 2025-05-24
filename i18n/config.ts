@@ -10,8 +10,8 @@ i18n
       en: { translation: en },
       zh: { translation: zh }
     },
-    lng: 'en',
-    fallbackLng: 'en',
+    lng: 'zh', // Changed from 'en' to 'zh'
+    fallbackLng: 'zh', // Changed from 'en' to 'zh'
     interpolation: {
       escapeValue: false
     }
