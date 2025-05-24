@@ -144,7 +144,9 @@ export default function HomeScreen() {
         </Text>
         <View style={styles.featuredGrid}>
           {featuredCaregivers.map((caregiver, index) => (
-            renderCaregiverCard({ item: caregiver, index })
+            <React.Fragment key={caregiver.id}>
+              {renderCaregiverCard({ item: caregiver, index })}
+            </React.Fragment>
           ))}
         </View>
       </View>
