@@ -121,7 +121,7 @@ export default {
     haveAccount: '已有账户？',
     name: '全名',
     namePlaceholder: '输入您的全名',
-    parent: '我是家长',
+    carereceiver: '我是被照护者',
     caregiver: '我是照护者',
     termsNotice: '登录即表示您同意我们的服务条款和隐私政策',
     termsAgreement: '注册即表示您同意我们的服务条款和隐私政策',

@@ -28,7 +28,7 @@ export default function RegisterScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [userType, setUserType] = useState<'parent' | 'caregiver'>('parent');
+  const [userType, setUserType] = useState<'carereceiver' | 'caregiver'>('carereceiver');
   const [errors, setErrors] = useState({
     name: '',
     email: '',
@@ -104,24 +104,24 @@ export default function RegisterScreen() {
           <TouchableOpacity
             style={[
               styles.userTypeButton,
-              userType === 'parent' && { 
+              userType === 'carereceiver' && { 
                 backgroundColor: colors.primaryLight,
                 borderColor: colors.primary,
               },
-              userType !== 'parent' && { 
+              userType !== 'carereceiver' && { 
                 backgroundColor: colors.card,
                 borderColor: 'transparent',
               }
             ]}
-            onPress={() => setUserType('parent')}
+            onPress={() => setUserType('carereceiver')}
           >
             <Text
               style={[
                 styles.userTypeText,
-                { color: userType === 'parent' ? colors.primary : colors.textDim }
+                { color: userType === 'carereceiver' ? colors.primary : colors.textDim }
               ]}
             >
-              {t('auth.parent')}
+              {t('auth.carereceiver')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity

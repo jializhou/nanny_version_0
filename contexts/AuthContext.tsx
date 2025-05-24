@@ -9,7 +9,7 @@ interface User {
   name: string;
   email: string;
   profileImage?: string;
-  userType: 'parent' | 'caregiver';
+  userType: 'carereceiver' | 'caregiver';
 }
 
 // Auth context interface
@@ -17,7 +17,7 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (email: string, password: string) => void;
-  register: (name: string, email: string, password: string, userType: 'parent' | 'caregiver') => void;
+  register: (name: string, email: string, password: string, userType: 'carereceiver' | 'caregiver') => void;
   logout: () => void;
 }
 
@@ -82,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           name: 'Sarah Johnson',
           email: email,
           profileImage: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg',
-          userType: 'parent',
+          userType: 'carereceiver',
         };
         
         setUser(mockUser);
@@ -99,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     name: string, 
     email: string, 
     password: string, 
-    userType: 'parent' | 'caregiver'
+    userType: 'carereceiver' | 'caregiver'
   ) => {
     try {
       setIsLoading(true);

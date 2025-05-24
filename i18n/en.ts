@@ -121,7 +121,7 @@ export default {
     haveAccount: 'Already have an account?',
     name: 'Full Name',
     namePlaceholder: 'Enter your full name',
-    parent: 'I\'m a Parent',
+    carereceiver: 'I\'m a CareReceiver',
     caregiver: 'I\'m a Caregiver',
     termsNotice: 'By signing in, you agree to our Terms of Service and Privacy Policy',
     termsAgreement: 'By signing up, you agree to our Terms of Service and Privacy Policy',
