@@ -2,9 +2,9 @@ export default {
   // Tab Navigation
   tabs: {
     home: '首页',
-    browse: '浏览',
+    search: '搜索',
     messages: '消息',
-    profile: '个人'
+    profile: '我的'
   },
 
   // Home Screen

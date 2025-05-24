@@ -2,7 +2,7 @@ export default {
   // Tab Navigation
   tabs: {
     home: 'Home',
-    browse: 'Browse',
+    search: 'Search',
     messages: 'Messages',
     profile: 'Profile'
   },
@@ -53,7 +53,8 @@ export default {
     apply: 'Apply Filters',
     clearAll: 'Clear All',
     stars: 'stars & up',
-    anyRating: 'Any Rating'
+    anyRating: 'Any Rating',
+    age: 'Age Range'
   },
 
   // Caregiver Details
