@@ -18,7 +18,7 @@ export const featuredCaregivers: Caregiver[] = [
   {
     id: '1',
     name: '王淑芳',
-    imageUrl: 'https://images.pexels.com/photos/3768167/pexels-photo-3768167.jpeg',
+    imageUrl: 'https://images.pexels.com/photos/3831645/pexels-photo-3831645.jpeg',
     city: '武汉',
     specialty: '育婴护理',
     monthlySalary: 8000,
@@ -33,7 +33,7 @@ export const featuredCaregivers: Caregiver[] = [
   {
     id: '2',
     name: '张丽华',
-    imageUrl: 'https://images.pexels.com/photos/3831612/pexels-photo-3831612.jpeg',
+    imageUrl: 'https://images.pexels.com/photos/3831617/pexels-photo-3831617.jpeg',
     city: '北京',
     specialty: '老人护理',
     monthlySalary: 9500,
@@ -48,7 +48,7 @@ export const featuredCaregivers: Caregiver[] = [
   {
     id: '3',
     name: '李秀英',
-    imageUrl: 'https://images.pexels.com/photos/3979287/pexels-photo-3979287.jpeg',
+    imageUrl: 'https://images.pexels.com/photos/3831619/pexels-photo-3831619.jpeg',
     city: '上海',
     specialty: '保洁做饭',
     monthlySalary: 7500,
@@ -63,7 +63,7 @@ export const featuredCaregivers: Caregiver[] = [
   {
     id: '4',
     name: '陈玉兰',
-    imageUrl: 'https://images.pexels.com/photos/3768114/pexels-photo-3768114.jpeg',
+    imageUrl: 'https://images.pexels.com/photos/3831622/pexels-photo-3831622.jpeg',
     city: '广州',
     specialty: '住家保姆',
     monthlySalary: 8500,
@@ -82,7 +82,7 @@ export const allCaregivers: Caregiver[] = [
   {
     id: '5',
     name: '周桂芝',
-    imageUrl: 'https://images.pexels.com/photos/3771836/pexels-photo-3771836.jpeg',
+    imageUrl: 'https://images.pexels.com/photos/3831624/pexels-photo-3831624.jpeg',
     city: '深圳',
     specialty: '月嫂',
     monthlySalary: 12000,
@@ -97,7 +97,7 @@ export const allCaregivers: Caregiver[] = [
   {
     id: '6',
     name: '刘春花',
-    imageUrl: 'https://images.pexels.com/photos/3791664/pexels-photo-3791664.jpeg',
+    imageUrl: 'https://images.pexels.com/photos/3831626/pexels-photo-3831626.jpeg',
     city: '成都',
     specialty: '育儿嫂',
     monthlySalary: 8000,
@@ -112,7 +112,7 @@ export const allCaregivers: Caregiver[] = [
   {
     id: '7',
     name: '孙金凤',
-    imageUrl: 'https://images.pexels.com/photos/3876366/pexels-photo-3876366.jpeg',
+    imageUrl: 'https://images.pexels.com/photos/3831628/pexels-photo-3831628.jpeg',
     city: '杭州',
     specialty: '钟点工',
     monthlySalary: 6000,
@@ -127,7 +127,7 @@ export const allCaregivers: Caregiver[] = [
   {
     id: '8',
     name: '赵月琴',
-    imageUrl: 'https://images.pexels.com/photos/3876387/pexels-photo-3876387.jpeg',
+    imageUrl: 'https://images.pexels.com/photos/3831630/pexels-photo-3831630.jpeg',
     city: '重庆',
     specialty: '照护老人',
     monthlySalary: 7500,
