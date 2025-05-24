@@ -141,7 +141,7 @@ export default function BrowseScreen() {
                   <View style={styles.locationRow}>
                     <MapPin size={14} color={colors.textDim} />
                     <Text style={[styles.locationText, { color: colors.textDim }]}>
-                      {item.city}
+                      {item.city} | {item.age}岁 | {item.hometown}
                     </Text>
                   </View>
                 </View>
