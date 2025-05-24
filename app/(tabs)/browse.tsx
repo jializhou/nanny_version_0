@@ -1,14 +1,20 @@
-import { Text, StyleSheet } from 'react-native';
+import { Text, StyleSheet, useColorScheme } from 'react-native';
+import Colors from '@/constants/Colors';
 
-const styles = StyleSheet.create({
-  caregiverRate: {
-    fontSize: 16,
-    fontWeight: '600',
-  }
-});
+export default function Browse() {
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
 
-// Previous content omitted for brevity
-// Update the salary display in the caregiver list:
-<Text style={[styles.caregiverRate, { color: colors.primary }]}>
-  ¥{item.monthlySalary}/月
-</Text>
+  const styles = StyleSheet.create({
+    caregiverRate: {
+      fontSize: 16,
+      fontWeight: '600',
+    }
+  });
+
+  return (
+    <Text style={[styles.caregiverRate, { color: colors.primary }]}>
+      ¥{item.monthlySalary}/月
+    </Text>
+  );
+}
