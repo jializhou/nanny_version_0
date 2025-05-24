@@ -12,8 +12,18 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'react-native';
-import { User, Settings, Heart, Star, LogOut, CreditCard as Edit2, Shield } from 'lucide-react-native';
-import { Link } from 'expo-router';
+import { 
+  User, 
+  Settings, 
+  Heart, 
+  Star, 
+  LogOut, 
+  CreditCard as Edit2, 
+  Shield,
+  Briefcase,
+  Search
+} from 'lucide-react-native';
+import { Link, useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
 import LanguageToggle from '@/components/LanguageToggle';
@@ -23,6 +33,7 @@ export default function ProfileScreen() {
   const { t } = useTranslation();
   const colors = Colors[colorScheme ?? 'light'];
   const { user, logout } = useAuth();
+  const router = useRouter();
   
   const [notifications, setNotifications] = useState(true);
   
@@ -44,6 +55,16 @@ export default function ProfileScreen() {
     );
   };
 
+  const handlePostJob = () => {
+    // Navigate to post job screen
+    Alert.alert('发布找阿姨', '即将上线，敬请期待！');
+  };
+
+  const handleFindWork = () => {
+    // Navigate to find work screen
+    Alert.alert('我要找工作', '即将上线，敬请期待！');
+  };
+
   return (
     <ScrollView 
       style={[styles.container, { backgroundColor: colors.background }]}
@@ -59,10 +80,10 @@ export default function ProfileScreen() {
           />
           <View style={styles.profileInfo}>
             <Text style={[styles.name, { color: colors.text }]}>
-              {user?.name || 'Sarah Johnson'}
+              {user?.name || '游客'}
             </Text>
             <Text style={[styles.email, { color: colors.textDim }]}>
-              {user?.email || 'sarah.j@example.com'}
+              {user?.email || '未登录'}
             </Text>
           </View>
         </View>
@@ -70,6 +91,32 @@ export default function ProfileScreen() {
           style={[styles.editButton, { backgroundColor: colors.primary }]}
         >
           <Edit2 size={16} color="#fff" />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          活动中心
+        </Text>
+        
+        <TouchableOpacity 
+          style={[styles.menuItem, { backgroundColor: colors.card }]}
+          onPress={handlePostJob}
+        >
+          <Briefcase size={20} color={colors.primary} />
+          <Text style={[styles.menuText, { color: colors.text }]}>
+            发布找阿姨
+          </Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={[styles.menuItem, { backgroundColor: colors.card }]}
+          onPress={handleFindWork}
+        >
+          <Search size={20} color={colors.primary} />
+          <Text style={[styles.menuText, { color: colors.text }]}>
+            我是阿姨我要找工
+          </Text>
         </TouchableOpacity>
       </View>
 
