@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from 'react-native';
@@ -40,11 +40,15 @@ export default function RootLayout() {
     'Poppins-Bold': Poppins_700Bold,
   });
 
-  useEffect(() => {
+  const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded || fontError) {
-      SplashScreen.hideAsync();
+      await SplashScreen.hideAsync();
     }
   }, [fontsLoaded, fontError]);
+
+  useEffect(() => {
+    onLayoutRootView();
+  }, [onLayoutRootView]);
 
   if (!fontsLoaded && !fontError) {
     return null;
@@ -54,25 +58,20 @@ export default function RootLayout() {
     <I18nextProvider i18n={i18n}>
       <AuthProvider>
         <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-        <Stack 
-          screenOptions={{ 
-            headerShown: false,
-            contentStyle: { 
-              backgroundColor: Colors[colorScheme ?? 'light'].background 
-            },
-          }}
-        >
+        <Stack screenOptions={{ 
+          headerShown: false,
+          contentStyle: { 
+            backgroundColor: Colors[colorScheme ?? 'light'].background 
+          },
+        }}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="(auth)" options={{ presentation: 'modal' }} />
-          <Stack.Screen 
-            name="caregiver/[id]" 
-            options={{ 
-              headerShown: true,
-              headerTitle: '',
-              headerBackTitle: '',
-              headerTintColor: Colors[colorScheme ?? 'light'].primary,
-            }} 
-          />
+          <Stack.Screen name="caregiver/[id]" options={{ 
+            headerShown: true,
+            headerTitle: '',
+            headerBackTitle: '',
+            headerTintColor: Colors[colorScheme ?? 'light'].primary,
+          }} />
           <Stack.Screen name="+not-found" options={{ title: 'Oops!' }} />
         </Stack>
       </AuthProvider>
