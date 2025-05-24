@@ -6,13 +6,15 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Platform
+  Platform,
+  TextInput
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'react-native';
-import { X } from 'lucide-react-native';
+import { X, Search } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
+import { cities } from '@/data/cities';
 
 interface FilterModalProps {
   visible: boolean;
@@ -37,6 +39,8 @@ export default function FilterModal({
   
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [salaryRange, setSalaryRange] = useState(initialSalaryRange);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCity, setSelectedCity] = useState<string | null>(null);
   
   useEffect(() => {
     if (visible) {
@@ -56,10 +60,16 @@ export default function FilterModal({
   const clearAll = () => {
     setSelectedFilters([]);
     setSalaryRange(DEFAULT_SALARY_RANGE);
+    setSearchQuery('');
+    setSelectedCity(null);
   };
   
   const handleApply = () => {
-    onApply(selectedFilters, salaryRange);
+    const allFilters = [...selectedFilters];
+    if (selectedCity) {
+      allFilters.push(selectedCity);
+    }
+    onApply(allFilters, salaryRange);
     onClose();
   };
 
@@ -69,6 +79,12 @@ export default function FilterModal({
     }
     return value.toString();
   };
+
+  const filteredCities = searchQuery
+    ? cities.filter(city => 
+        city.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : cities;
 
   return (
     <Modal
@@ -89,6 +105,49 @@ export default function FilterModal({
           </View>
 
           <ScrollView style={styles.filtersContainer}>
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                城市选择
+              </Text>
+              <View style={[styles.searchContainer, { backgroundColor: colors.card }]}>
+                <Search size={20} color={colors.textDim} />
+                <TextInput
+                  style={[styles.searchInput, { color: colors.text }]}
+                  placeholder="搜索城市"
+                  placeholderTextColor={colors.textDim}
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                />
+              </View>
+              <View style={styles.citiesContainer}>
+                {filteredCities.map((city) => (
+                  <TouchableOpacity
+                    key={city.id}
+                    style={[
+                      styles.cityButton,
+                      selectedCity === city.name
+                        ? { backgroundColor: colors.primaryLight, borderColor: colors.primary }
+                        : { backgroundColor: colors.card, borderColor: colors.border }
+                    ]}
+                    onPress={() => setSelectedCity(city.name)}
+                  >
+                    <Text
+                      style={[
+                        styles.cityButtonText,
+                        { 
+                          color: selectedCity === city.name 
+                            ? colors.primary 
+                            : colors.text 
+                        }
+                      ]}
+                    >
+                      {city.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
             <View style={styles.section}>
               <Text style={[styles.sectionTitle, { color: colors.text }]}>
                 工作类型
@@ -252,6 +311,35 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: 'Poppins-SemiBold',
     marginBottom: 16,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: 8,
+    fontFamily: 'Inter-Regular',
+    fontSize: 16,
+  },
+  citiesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginHorizontal: -4,
+  },
+  cityButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    margin: 4,
+    borderWidth: 1,
+  },
+  cityButtonText: {
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
   },
   filterOptionsContainer: {
     flexDirection: 'row',
