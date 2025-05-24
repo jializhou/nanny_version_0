@@ -55,7 +55,7 @@ export default function HomeScreen() {
           ]}
         >
           <Text style={styles.availabilityText}>
-            {item.available ? '在职' : '已预约'}
+            {item.available ? '空闲中' : '在职'}
           </Text>
         </View>
       </View>
