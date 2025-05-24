@@ -17,33 +17,33 @@ import MultiSlider from '@ptomasroos/react-native-multi-slider';
 interface FilterModalProps {
   visible: boolean;
   onClose: () => void;
-  onApply: (filters: string[], ageRange: number[]) => void;
+  onApply: (filters: string[], salaryRange: number[]) => void;
   activeFilters: string[];
-  ageRange?: number[];
+  salaryRange?: number[];
 }
 
-const DEFAULT_AGE_RANGE = [25, 55];
+const DEFAULT_SALARY_RANGE = [3000, 50000];
 
 export default function FilterModal({ 
   visible, 
   onClose, 
   onApply,
   activeFilters,
-  ageRange: initialAgeRange = DEFAULT_AGE_RANGE
+  salaryRange: initialSalaryRange = DEFAULT_SALARY_RANGE
 }: FilterModalProps) {
   const colorScheme = useColorScheme();
   const { t } = useTranslation();
   const colors = Colors[colorScheme ?? 'light'];
   
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
-  const [ageRange, setAgeRange] = useState(initialAgeRange);
+  const [salaryRange, setSalaryRange] = useState(initialSalaryRange);
   
   useEffect(() => {
     if (visible) {
       setSelectedFilters(activeFilters);
-      setAgeRange(initialAgeRange || DEFAULT_AGE_RANGE);
+      setSalaryRange(initialSalaryRange || DEFAULT_SALARY_RANGE);
     }
-  }, [visible, activeFilters, initialAgeRange]);
+  }, [visible, activeFilters, initialSalaryRange]);
   
   const toggleFilter = (filter: string) => {
     if (selectedFilters.includes(filter)) {
@@ -55,11 +55,19 @@ export default function FilterModal({
   
   const clearAll = () => {
     setSelectedFilters([]);
-    setAgeRange(DEFAULT_AGE_RANGE);
+    setSalaryRange(DEFAULT_SALARY_RANGE);
   };
   
   const handleApply = () => {
-    onApply(selectedFilters, ageRange);
+    onApply(selectedFilters, salaryRange);
+    onClose();
+  };
+
+  const formatSalary = (value: number) => {
+    if (value >= 10000) {
+      return `${(value / 10000).toFixed(1)}万`;
+    }
+    return value.toString();
   };
 
   return (
@@ -73,7 +81,7 @@ export default function FilterModal({
         <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
           <View style={styles.modalHeader}>
             <Text style={[styles.modalTitle, { color: colors.text }]}>
-              {t('filters.title')}
+              筛选条件
             </Text>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
               <X size={24} color={colors.text} />
@@ -83,12 +91,11 @@ export default function FilterModal({
           <ScrollView style={styles.filtersContainer}>
             <View style={styles.section}>
               <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                {t('filters.skills')}
+                工作类型
               </Text>
               <View style={styles.filterOptionsContainer}>
                 {[
-                  '育婴', '做饭', '保洁', '老人护理', 
-                  '住家', '钟点工', '早教', '月嫂'
+                  '住家', '钟点工', '早出晚归', '白班'
                 ].map((filter) => (
                   <TouchableOpacity
                     key={filter}
@@ -119,24 +126,60 @@ export default function FilterModal({
 
             <View style={styles.section}>
               <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                {t('filters.age')}
+                技能要求
+              </Text>
+              <View style={styles.filterOptionsContainer}>
+                {[
+                  '带娃', '做饭', '做家务', '照顾老人',
+                  '带宠物', '辅导作业', '早教'
+                ].map((filter) => (
+                  <TouchableOpacity
+                    key={filter}
+                    style={[
+                      styles.filterOption,
+                      selectedFilters.includes(filter)
+                        ? { backgroundColor: colors.primaryLight, borderColor: colors.primary }
+                        : { backgroundColor: colors.card, borderColor: colors.border }
+                    ]}
+                    onPress={() => toggleFilter(filter)}
+                  >
+                    <Text
+                      style={[
+                        styles.filterOptionText,
+                        { 
+                          color: selectedFilters.includes(filter) 
+                            ? colors.primary 
+                            : colors.text 
+                        }
+                      ]}
+                    >
+                      {filter}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                月薪范围
               </Text>
               <View style={styles.sliderContainer}>
-                <View style={styles.ageLabels}>
-                  <Text style={[styles.ageLabel, { color: colors.text }]}>
-                    {ageRange[0]} 岁
+                <View style={styles.salaryLabels}>
+                  <Text style={[styles.salaryLabel, { color: colors.text }]}>
+                    ¥{formatSalary(salaryRange[0])}
                   </Text>
-                  <Text style={[styles.ageLabel, { color: colors.text }]}>
-                    {ageRange[1]} 岁
+                  <Text style={[styles.salaryLabel, { color: colors.text }]}>
+                    ¥{formatSalary(salaryRange[1])}
                   </Text>
                 </View>
                 <MultiSlider
-                  values={[ageRange[0], ageRange[1]]}
-                  min={18}
-                  max={65}
-                  step={1}
+                  values={[salaryRange[0], salaryRange[1]]}
+                  min={3000}
+                  max={50000}
+                  step={1000}
                   sliderLength={Platform.OS === 'web' ? 280 : undefined}
-                  onValuesChange={(values) => setAgeRange(values)}
+                  onValuesChange={(values) => setSalaryRange(values)}
                   selectedStyle={{ backgroundColor: colors.primary }}
                   unselectedStyle={{ backgroundColor: colors.border }}
                   markerStyle={{
@@ -155,7 +198,7 @@ export default function FilterModal({
               onPress={clearAll}
             >
               <Text style={[styles.clearButtonText, { color: colors.text }]}>
-                {t('filters.clearAll')}
+                清除全部
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -163,7 +206,7 @@ export default function FilterModal({
               onPress={handleApply}
             >
               <Text style={styles.applyButtonText}>
-                {t('filters.apply')}
+                应用筛选
               </Text>
             </TouchableOpacity>
           </View>
@@ -229,12 +272,12 @@ const styles = StyleSheet.create({
   sliderContainer: {
     paddingHorizontal: 4,
   },
-  ageLabels: {
+  salaryLabels: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 8,
   },
-  ageLabel: {
+  salaryLabel: {
     fontSize: 14,
     fontFamily: 'Inter-Medium',
   },
