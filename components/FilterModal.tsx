@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   ScrollView,
   Platform,
-  TextInput
+  TextInput,
+  Picker
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'react-native';
@@ -26,6 +27,20 @@ interface FilterModalProps {
 
 const DEFAULT_SALARY_RANGE = [3000, 100000];
 
+const generateYears = () => {
+  const currentYear = new Date().getFullYear();
+  return Array.from({ length: 3 }, (_, i) => currentYear + i);
+};
+
+const generateMonths = () => {
+  return Array.from({ length: 12 }, (_, i) => i + 1);
+};
+
+const generateDays = (year: number, month: number) => {
+  const daysInMonth = new Date(year, month, 0).getDate();
+  return Array.from({ length: daysInMonth }, (_, i) => i + 1);
+};
+
 export default function FilterModal({ 
   visible, 
   onClose, 
@@ -41,13 +56,16 @@ export default function FilterModal({
   const [salaryRange, setSalaryRange] = useState(initialSalaryRange);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  
+  // Date selection state
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [selectedDay, setSelectedDay] = useState(1);
 
   useEffect(() => {
     if (visible) {
       setSelectedFilters(activeFilters);
       setSalaryRange(initialSalaryRange || DEFAULT_SALARY_RANGE);
-      setSelectedDate(null);
     }
   }, [visible, activeFilters, initialSalaryRange]);
   
@@ -64,7 +82,9 @@ export default function FilterModal({
     setSalaryRange(DEFAULT_SALARY_RANGE);
     setSearchQuery('');
     setSelectedCity(null);
-    setSelectedDate(null);
+    setSelectedYear(new Date().getFullYear());
+    setSelectedMonth(new Date().getMonth() + 1);
+    setSelectedDay(1);
   };
   
   const handleApply = () => {
@@ -72,7 +92,8 @@ export default function FilterModal({
     if (selectedCity) {
       allFilters.push(selectedCity);
     }
-    onApply(allFilters, salaryRange, selectedDate?.toISOString());
+    const startDate = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
+    onApply(allFilters, salaryRange, startDate);
     onClose();
   };
 
@@ -88,21 +109,6 @@ export default function FilterModal({
         city.name.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : cities;
-
-  const formatDate = (date: Date) => {
-    return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
-  };
-
-  const generateDateOptions = () => {
-    const dates = [];
-    const startDate = new Date(2025, 5, 1); // June 1, 2025
-    for (let i = 0; i < 90; i++) { // Generate dates for 3 months
-      const date = new Date(startDate);
-      date.setDate(startDate.getDate() + i);
-      dates.push(date);
-    }
-    return dates;
-  };
 
   return (
     <Modal
@@ -128,37 +134,39 @@ export default function FilterModal({
                 最早开始时间
               </Text>
               <View style={styles.datePickerContainer}>
-                <ScrollView 
-                  style={styles.dateList}
-                  showsVerticalScrollIndicator={false}
-                >
-                  {generateDateOptions().map((date) => (
-                    <TouchableOpacity
-                      key={date.toISOString()}
-                      style={[
-                        styles.dateOption,
-                        selectedDate?.toDateString() === date.toDateString() && {
-                          backgroundColor: colors.primaryLight,
-                          borderColor: colors.primary,
-                        }
-                      ]}
-                      onPress={() => setSelectedDate(date)}
-                    >
-                      <Text
-                        style={[
-                          styles.dateText,
-                          {
-                            color: selectedDate?.toDateString() === date.toDateString()
-                              ? colors.primary
-                              : colors.text
-                          }
-                        ]}
-                      >
-                        {formatDate(date)}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
+                <View style={[styles.pickerContainer, { backgroundColor: colors.card }]}>
+                  <Picker
+                    selectedValue={selectedYear}
+                    onValueChange={(value) => setSelectedYear(value)}
+                    style={[styles.picker, { color: colors.text }]}
+                  >
+                    {generateYears().map((year) => (
+                      <Picker.Item key={year} label={`${year}年`} value={year} />
+                    ))}
+                  </Picker>
+                </View>
+                <View style={[styles.pickerContainer, { backgroundColor: colors.card }]}>
+                  <Picker
+                    selectedValue={selectedMonth}
+                    onValueChange={(value) => setSelectedMonth(value)}
+                    style={[styles.picker, { color: colors.text }]}
+                  >
+                    {generateMonths().map((month) => (
+                      <Picker.Item key={month} label={`${month}月`} value={month} />
+                    ))}
+                  </Picker>
+                </View>
+                <View style={[styles.pickerContainer, { backgroundColor: colors.card }]}>
+                  <Picker
+                    selectedValue={selectedDay}
+                    onValueChange={(value) => setSelectedDay(value)}
+                    style={[styles.picker, { color: colors.text }]}
+                  >
+                    {generateDays(selectedYear, selectedMonth).map((day) => (
+                      <Picker.Item key={day} label={`${day}日`} value={day} />
+                    ))}
+                  </Picker>
+                </View>
               </View>
             </View>
 
@@ -457,21 +465,17 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-SemiBold',
   },
   datePickerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginTop: 8,
   },
-  dateList: {
-    maxHeight: 200,
+  pickerContainer: {
+    flex: 1,
+    marginHorizontal: 4,
+    borderRadius: 12,
+    overflow: 'hidden',
   },
-  dateOption: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: '#eaeaea',
+  picker: {
+    height: 50,
   },
-  dateText: {
-    fontSize: 16,
-    fontFamily: 'Inter-Regular',
-  }
 });
