@@ -10,7 +10,7 @@ import {
   FlatList
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Star } from 'lucide-react-native';
+import { Star, Search, UserPlus } from 'lucide-react-native';
 import { Link } from 'expo-router';
 import { useColorScheme } from 'react-native';
 import Colors from '@/constants/Colors';
@@ -104,7 +104,7 @@ export default function HomeScreen() {
       <View style={styles.header}>
         <View>
           <Text style={[styles.welcomeText, { color: colors.text }]}>
-            {t('home.welcome')}
+            阿姨找工，寻找您心仪的阿姨
           </Text>
           <TouchableOpacity 
             style={styles.locationButton} 
@@ -117,9 +117,29 @@ export default function HomeScreen() {
         </View>
       </View>
 
+      <View style={styles.actionButtons}>
+        <Link href="/search" asChild>
+          <TouchableOpacity 
+            style={[styles.actionButton, { backgroundColor: colors.primary }]}
+          >
+            <Search size={24} color="#fff" />
+            <Text style={styles.actionButtonText}>找阿姨</Text>
+          </TouchableOpacity>
+        </Link>
+
+        <Link href="/post-job" asChild>
+          <TouchableOpacity 
+            style={[styles.actionButton, { backgroundColor: colors.accent }]}
+          >
+            <UserPlus size={24} color="#fff" />
+            <Text style={styles.actionButtonText}>发布招聘</Text>
+          </TouchableOpacity>
+        </Link>
+      </View>
+
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
-          {t('home.featured')}
+          推荐阿姨
         </Text>
         <View style={styles.featuredGrid}>
           {featuredCaregivers.map((caregiver, index) => (
@@ -132,7 +152,7 @@ export default function HomeScreen() {
 
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
-          {t('home.categories')}
+          服务类型
         </Text>
         <View style={styles.categoriesContainer}>
           {['育婴', '保洁', '老人护理', '月嫂'].map((category) => (
@@ -187,6 +207,25 @@ const styles = StyleSheet.create({
   locationText: {
     fontFamily: 'Inter-Medium',
     fontSize: 14,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    marginBottom: 24,
+    gap: 12,
+  },
+  actionButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    borderRadius: 12,
+    gap: 8,
+  },
+  actionButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
   },
   section: {
     marginBottom: 24,
