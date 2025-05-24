@@ -24,7 +24,7 @@ interface FilterModalProps {
   salaryRange?: number[];
 }
 
-const DEFAULT_SALARY_RANGE = [3000, 50000];
+const DEFAULT_SALARY_RANGE = [3000, 100000];
 
 export default function FilterModal({ 
   visible, 
@@ -235,7 +235,7 @@ export default function FilterModal({
                 <MultiSlider
                   values={[salaryRange[0], salaryRange[1]]}
                   min={3000}
-                  max={50000}
+                  max={100000}
                   step={1000}
                   sliderLength={Platform.OS === 'web' ? 280 : undefined}
                   onValuesChange={(values) => setSalaryRange(values)}

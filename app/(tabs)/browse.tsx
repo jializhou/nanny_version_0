@@ -146,7 +146,7 @@ export default function BrowseScreen() {
                     </Text>
                   </View>
                   <Text style={[styles.caregiverRate, { color: colors.primary }]}>
-                    ¥{item.hourlyRate}/小时
+                    ¥{item.monthlySalary}/月
                   </Text>
                 </View>
               </View>
