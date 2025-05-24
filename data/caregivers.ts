@@ -4,7 +4,7 @@ interface Caregiver {
   imageUrl: string;
   city: string;
   specialty: string;
-  monthlySalary: number; // Changed from hourlyRate
+  monthlySalary: number;
   rating: number;
   reviewCount: number;
   experience: number;
