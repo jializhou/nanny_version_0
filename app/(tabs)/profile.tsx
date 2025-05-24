@@ -56,11 +56,11 @@ export default function ProfileScreen() {
   };
 
   const handlePostJob = () => {
-    Alert.alert('发布找阿姨', '即将上线，敬请期待！');
+    Alert.alert('招聘阿姨', '即将上线，敬请期待！');
   };
 
   const handleFindWork = () => {
-    Alert.alert('我要找工作', '即将上线，敬请期待！');
+    Alert.alert('阿姨求职', '即将上线，敬请期待！');
   };
 
   return (
@@ -103,7 +103,7 @@ export default function ProfileScreen() {
         >
           <Briefcase size={20} color={colors.primary} />
           <Text style={[styles.menuText, { color: colors.text }]}>
-            发布找阿姨
+            招聘阿姨
           </Text>
         </TouchableOpacity>
         
@@ -113,7 +113,7 @@ export default function ProfileScreen() {
         >
           <Search size={20} color={colors.primary} />
           <Text style={[styles.menuText, { color: colors.text }]}>
-            我是阿姨我要找工
+            阿姨求职
           </Text>
         </TouchableOpacity>
       </View>
