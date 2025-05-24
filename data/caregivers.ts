@@ -49,3 +49,4 @@ export const featuredCaregivers: Caregiver[] = [
     }
   },
   // ... rest of the caregivers data
+]
