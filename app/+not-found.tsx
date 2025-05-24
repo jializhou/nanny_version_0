@@ -11,7 +11,10 @@ export default function NotFoundScreen() {
           href="/" 
           style={[
             styles.link,
-            Platform.OS === 'web' ? { textDecoration: 'none' } : {}
+            Platform.select({
+              web: { textDecoration: 'none' },
+              default: {}
+            })
           ]}
         >
           <Text style={styles.linkText}>Go to home screen!</Text>
