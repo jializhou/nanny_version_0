@@ -5,3 +5,10 @@ import { Text, StyleSheet } from 'react-native';
 <Text style={[styles.caregiverRate, { color: colors.primary }]}>
   ¥{item.monthlySalary}/月
 </Text>
+
+const styles = StyleSheet.create({
+  caregiverRate: {
+    fontSize: 16,
+    fontWeight: '600',
+  }
+});
