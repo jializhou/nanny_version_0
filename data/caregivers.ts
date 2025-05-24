@@ -4,24 +4,24 @@ interface Caregiver {
   imageUrl: string;
   city: string;
   specialty: string;
-  hourlyRate: number;
+  monthlySalary: number; // Changed from hourlyRate
   rating: number;
   reviewCount: number;
   experience: number;
   bio: string;
   skills: string[];
   certifications: string[];
-  shortBio: string; // Added new field for short bio
+  shortBio: string;
 }
 
 export const featuredCaregivers: Caregiver[] = [
   {
     id: '1',
-    name: '王阿姨',
-    imageUrl: 'https://images.pexels.com/photos/2050994/pexels-photo-2050994.jpeg',
+    name: '王淑芳',
+    imageUrl: 'https://images.pexels.com/photos/3768167/pexels-photo-3768167.jpeg',
     city: '武汉',
     specialty: '育婴护理',
-    hourlyRate: 35,
+    monthlySalary: 8000,
     rating: 4.9,
     reviewCount: 128,
     experience: 8,
@@ -32,11 +32,11 @@ export const featuredCaregivers: Caregiver[] = [
   },
   {
     id: '2',
-    name: '张阿姨',
+    name: '张丽华',
     imageUrl: 'https://images.pexels.com/photos/3831612/pexels-photo-3831612.jpeg',
     city: '北京',
     specialty: '老人护理',
-    hourlyRate: 40,
+    monthlySalary: 9500,
     rating: 4.8,
     reviewCount: 97,
     experience: 10,
@@ -47,11 +47,11 @@ export const featuredCaregivers: Caregiver[] = [
   },
   {
     id: '3',
-    name: '李阿姨',
+    name: '李秀英',
     imageUrl: 'https://images.pexels.com/photos/3979287/pexels-photo-3979287.jpeg',
     city: '上海',
     specialty: '保洁做饭',
-    hourlyRate: 30,
+    monthlySalary: 7500,
     rating: 4.7,
     reviewCount: 84,
     experience: 5,
@@ -62,11 +62,11 @@ export const featuredCaregivers: Caregiver[] = [
   },
   {
     id: '4',
-    name: '陈阿姨',
+    name: '陈玉兰',
     imageUrl: 'https://images.pexels.com/photos/3768114/pexels-photo-3768114.jpeg',
     city: '广州',
     specialty: '住家保姆',
-    hourlyRate: 38,
+    monthlySalary: 8500,
     rating: 4.8,
     reviewCount: 76,
     experience: 7,
@@ -81,11 +81,11 @@ export const allCaregivers: Caregiver[] = [
   ...featuredCaregivers,
   {
     id: '5',
-    name: '周阿姨',
+    name: '周桂芝',
     imageUrl: 'https://images.pexels.com/photos/3771836/pexels-photo-3771836.jpeg',
     city: '深圳',
     specialty: '月嫂',
-    hourlyRate: 45,
+    monthlySalary: 12000,
     rating: 4.9,
     reviewCount: 143,
     experience: 12,
@@ -96,11 +96,11 @@ export const allCaregivers: Caregiver[] = [
   },
   {
     id: '6',
-    name: '刘阿姨',
+    name: '刘春花',
     imageUrl: 'https://images.pexels.com/photos/3791664/pexels-photo-3791664.jpeg',
     city: '成都',
     specialty: '育儿嫂',
-    hourlyRate: 35,
+    monthlySalary: 8000,
     rating: 4.7,
     reviewCount: 89,
     experience: 6,
@@ -111,11 +111,11 @@ export const allCaregivers: Caregiver[] = [
   },
   {
     id: '7',
-    name: '孙阿姨',
+    name: '孙金凤',
     imageUrl: 'https://images.pexels.com/photos/3876366/pexels-photo-3876366.jpeg',
     city: '杭州',
     specialty: '钟点工',
-    hourlyRate: 25,
+    monthlySalary: 6000,
     rating: 4.8,
     reviewCount: 112,
     experience: 4,
@@ -126,11 +126,11 @@ export const allCaregivers: Caregiver[] = [
   },
   {
     id: '8',
-    name: '赵阿姨',
+    name: '赵月琴',
     imageUrl: 'https://images.pexels.com/photos/3876387/pexels-photo-3876387.jpeg',
     city: '重庆',
     specialty: '照护老人',
-    hourlyRate: 32,
+    monthlySalary: 7500,
     rating: 4.6,
     reviewCount: 67,
     experience: 9,
