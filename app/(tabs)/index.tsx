@@ -16,7 +16,6 @@ import { useColorScheme } from 'react-native';
 import Colors from '@/constants/Colors';
 import { featuredCaregivers } from '@/data/caregivers';
 import CitySelector from '@/components/CitySelector';
-import FilterModal from '@/components/FilterModal';
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
@@ -25,9 +24,6 @@ export default function HomeScreen() {
   
   const [selectedCity, setSelectedCity] = useState('武汉');
   const [isCitySelectorVisible, setCitySelectorVisible] = useState(false);
-  const [isFilterModalVisible, setFilterModalVisible] = useState(false);
-  const [activeFilters, setActiveFilters] = useState<string[]>([]);
-  const [ageRange, setAgeRange] = useState([25, 55]);
 
   const renderCaregiverCard = ({ item, index }: { item: typeof featuredCaregivers[0], index: number }) => (
     <Link 
@@ -62,9 +58,36 @@ export default function HomeScreen() {
             {item.rating} ({item.reviewCount})
           </Text>
         </View>
-        <Text style={[styles.caregiverSpecialty, { color: colors.textDim }]} numberOfLines={1}>
-          {item.specialty}
+        
+        <View style={styles.skillsContainer}>
+          {item.skills.map((skill, skillIndex) => (
+            <View 
+              key={skillIndex} 
+              style={[
+                styles.skillBadge,
+                { backgroundColor: colors.primaryLight }
+              ]}
+            >
+              <Text 
+                style={[
+                  styles.skillText,
+                  { color: colors.primary }
+                ]}
+                numberOfLines={1}
+              >
+                {skill}
+              </Text>
+            </View>
+          ))}
+        </View>
+
+        <Text 
+          style={[styles.shortBio, { color: colors.textDim }]} 
+          numberOfLines={2}
+        >
+          {item.shortBio}
         </Text>
+
         <Text style={[styles.caregiverRate, { color: colors.primary }]}>
           ¥{item.hourlyRate}/小时
         </Text>
@@ -199,7 +222,7 @@ const styles = StyleSheet.create({
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 8,
   },
   ratingText: {
     marginLeft: 4,
@@ -207,10 +230,27 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Regular',
     color: '#888',
   },
-  caregiverSpecialty: {
+  skillsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 8,
+    marginHorizontal: -2,
+  },
+  skillBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    margin: 2,
+  },
+  skillText: {
+    fontSize: 10,
+    fontFamily: 'Inter-Medium',
+  },
+  shortBio: {
     fontFamily: 'Inter-Regular',
-    fontSize: 14,
-    marginBottom: 4,
+    fontSize: 12,
+    marginBottom: 8,
+    lineHeight: 16,
   },
   caregiverRate: {
     fontFamily: 'Inter-SemiBold',
