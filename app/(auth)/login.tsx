@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -28,7 +28,7 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({ email: '', password: '' });
 
-  const validateForm = () => {
+  const validateForm = useCallback(() => {
     let isValid = true;
     const newErrors = { email: '', password: '' };
 
@@ -47,13 +47,13 @@ export default function LoginScreen() {
 
     setErrors(newErrors);
     return isValid;
-  };
+  }, [email, password, t]);
 
-  const handleLogin = () => {
+  const handleLogin = useCallback(() => {
     if (validateForm()) {
       login(email, password);
     }
-  };
+  }, [validateForm, login, email, password]);
 
   return (
     <KeyboardAvoidingView
@@ -160,12 +160,8 @@ export default function LoginScreen() {
             <Text style={[styles.registerText, { color: colors.textDim }]}>
               {t('auth.noAccount')}
             </Text>
-            <Link href="/register" asChild>
-              <TouchableOpacity>
-                <Text style={[styles.registerLink, { color: colors.primary }]}>
-                  {t('auth.register')}
-                </Text>
-              </TouchableOpacity>
+            <Link href="/register" style={[styles.registerLink, { color: colors.primary }]}>
+              <Text>{t('auth.register')}</Text>
             </Link>
           </View>
         </View>
@@ -270,6 +266,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Inter-SemiBold',
     marginLeft: 4,
+    textDecooration: Platform.OS === 'web' ? 'none' : undefined,
   },
   footer: {
     marginTop: 'auto',
