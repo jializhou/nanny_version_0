@@ -47,6 +47,5 @@ export const featuredCaregivers: Caregiver[] = [
       childcare: 'https://images.pexels.com/photos/3875225/pexels-photo-3875225.jpeg',
       cleaning: 'https://images.pexels.com/photos/4108715/pexels-photo-4108715.jpeg'
     }
-  },
-  // ... rest of the caregivers data
+  }
 ]
