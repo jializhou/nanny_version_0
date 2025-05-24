@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { Alert } from 'react-native';
 import { useRouter, useSegments } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // User type definition
 interface User {
@@ -24,6 +25,13 @@ interface AuthContextType {
 // Create the context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Storage keys
+const USER_STORAGE_KEY = '@auth_user';
+const SESSION_TIMESTAMP_KEY = '@auth_session_timestamp';
+
+// Session duration in milliseconds (12 hours)
+const SESSION_DURATION = 12 * 60 * 60 * 1000;
+
 // Provider component
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -32,26 +40,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const segments = useSegments();
   const { t } = useTranslation();
 
-  // Check if the user is authenticated
+  // Check if the session is still valid
+  const isSessionValid = async () => {
+    try {
+      const timestamp = await AsyncStorage.getItem(SESSION_TIMESTAMP_KEY);
+      if (!timestamp) return false;
+
+      const lastActivity = parseInt(timestamp, 10);
+      const now = Date.now();
+      return now - lastActivity < SESSION_DURATION;
+    } catch (error) {
+      console.error('Error checking session validity:', error);
+      return false;
+    }
+  };
+
+  // Update the session timestamp
+  const updateSessionTimestamp = async () => {
+    try {
+      await AsyncStorage.setItem(SESSION_TIMESTAMP_KEY, Date.now().toString());
+    } catch (error) {
+      console.error('Error updating session timestamp:', error);
+    }
+  };
+
+  // Load the persisted user data
   useEffect(() => {
-    // This would typically check a token or some form of persistent storage
-    // Here we're just simulating with a setTimeout
-    const checkAuth = async () => {
+    const loadUser = async () => {
       try {
-        // Simulate a check for stored credentials
         setIsLoading(true);
-        setTimeout(() => {
-          // No stored user for demo purposes
+        const sessionValid = await isSessionValid();
+        if (!sessionValid) {
+          await AsyncStorage.multiRemove([USER_STORAGE_KEY, SESSION_TIMESTAMP_KEY]);
           setUser(null);
           setIsLoading(false);
-        }, 1000);
-      } catch (e) {
+          return;
+        }
+
+        const storedUser = await AsyncStorage.getItem(USER_STORAGE_KEY);
+        if (storedUser) {
+          setUser(JSON.parse(storedUser));
+          updateSessionTimestamp();
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error);
         setUser(null);
+      } finally {
         setIsLoading(false);
       }
     };
 
-    checkAuth();
+    loadUser();
   }, []);
 
   // Handle routing based on auth state
@@ -75,7 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(true);
       
       // Mock API call - In a real app, this would call your authentication API
-      setTimeout(() => {
+      setTimeout(async () => {
         // Mock successful login
         const mockUser: User = {
           id: '1',
@@ -84,6 +123,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           profileImage: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg',
           userType: 'employer',
         };
+        
+        // Store user data and session timestamp
+        await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(mockUser));
+        await updateSessionTimestamp();
         
         setUser(mockUser);
         setIsLoading(false);
@@ -105,7 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(true);
       
       // Mock API call - In a real app, this would call your registration API
-      setTimeout(() => {
+      setTimeout(async () => {
         // Mock successful registration and login
         const mockUser: User = {
           id: '1',
@@ -114,6 +157,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           profileImage: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg',
           userType: userType,
         };
+        
+        // Store user data and session timestamp
+        await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(mockUser));
+        await updateSessionTimestamp();
         
         setUser(mockUser);
         setIsLoading(false);
@@ -125,8 +172,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   // Logout function
-  const logout = () => {
-    setUser(null);
+  const logout = async () => {
+    try {
+      await AsyncStorage.multiRemove([USER_STORAGE_KEY, SESSION_TIMESTAMP_KEY]);
+      setUser(null);
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
   };
 
   return (
