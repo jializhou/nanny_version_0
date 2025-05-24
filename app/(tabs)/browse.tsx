@@ -12,9 +12,9 @@ import {
   Pressable
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Search, Filter, Star, MapPin, X } from 'lucide-react-native';
-import { Link } from 'expo-router';
 import { useColorScheme } from 'react-native';
+import { Search, Filter, Star, MapPin, X, Heart } from 'lucide-react-native';
+import { Link } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { allCaregivers } from '@/data/caregivers';
 import FilterModal from '@/components/FilterModal';
@@ -29,6 +29,7 @@ export default function BrowseScreen() {
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [salaryRange, setSalaryRange] = useState([3000, 100000]);
   const [filteredCaregivers, setFilteredCaregivers] = useState(allCaregivers);
+  const [favorites, setFavorites] = useState<string[]>([]);
   
   const handleSearch = (text: string) => {
     setSearchQuery(text);
@@ -62,6 +63,14 @@ export default function BrowseScreen() {
     );
     
     setFilteredCaregivers(filtered);
+  };
+
+  const toggleFavorite = (id: string) => {
+    setFavorites(prev => 
+      prev.includes(id) 
+        ? prev.filter(fid => fid !== id)
+        : [...prev, id]
+    );
   };
 
   const CardLink = Platform.select({
@@ -121,42 +130,82 @@ export default function BrowseScreen() {
         contentContainerStyle={styles.caregiverListContent}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
-          <CardLink 
-            href={`/caregiver/${item.id}`} 
-            style={Platform.select({
-              web: { textDecoration: 'none', display: 'block' },
-              default: {}
-            })}
-          >
-            <TouchableOpacity style={[styles.caregiverCard, { backgroundColor: colors.card }]}>
-              <Image source={{ uri: item.imageUrl }} style={styles.caregiverImage} />
-              <View style={styles.caregiverInfo}>
-                <Text style={[styles.caregiverName, { color: colors.text }]}>
-                  {item.name}
-                </Text>
-                <View style={styles.locationRow}>
-                  <MapPin size={14} color={colors.textDim} />
-                  <Text style={[styles.locationText, { color: colors.textDim }]}>
-                    {item.city}
+          <View style={[styles.caregiverCard, { backgroundColor: colors.card }]}>
+            <View style={styles.cardHeader}>
+              <View style={styles.cardHeaderLeft}>
+                <Image source={{ uri: item.imageUrl }} style={styles.caregiverAvatar} />
+                <View>
+                  <Text style={[styles.caregiverName, { color: colors.text }]}>
+                    {item.name}
                   </Text>
-                </View>
-                <Text style={[styles.caregiverSpecialty, { color: colors.textDim }]}>
-                  {item.specialty}
-                </Text>
-                <View style={styles.caregiverFooter}>
-                  <View style={styles.ratingContainer}>
-                    <Star size={14} color="#FFD700" fill="#FFD700" />
-                    <Text style={styles.ratingText}>
-                      {item.rating} ({item.reviewCount})
+                  <View style={styles.locationRow}>
+                    <MapPin size={14} color={colors.textDim} />
+                    <Text style={[styles.locationText, { color: colors.textDim }]}>
+                      {item.city}
                     </Text>
                   </View>
-                  <Text style={[styles.caregiverRate, { color: colors.primary }]}>
-                    ¥{item.monthlySalary}/月
-                  </Text>
                 </View>
               </View>
-            </TouchableOpacity>
-          </CardLink>
+              <TouchableOpacity 
+                style={styles.favoriteButton}
+                onPress={() => toggleFavorite(item.id)}
+              >
+                <Heart 
+                  size={24} 
+                  color={favorites.includes(item.id) ? colors.accent : colors.textDim}
+                  fill={favorites.includes(item.id) ? colors.accent : 'transparent'}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.cardBody}>
+              <View style={styles.ratingRow}>
+                <View style={styles.ratingContainer}>
+                  <Star size={16} color="#FFD700" fill="#FFD700" />
+                  <Text style={styles.ratingText}>
+                    {item.rating} ({item.reviewCount})
+                  </Text>
+                </View>
+                <Text style={[styles.experience, { color: colors.textDim }]}>
+                  {item.experience}年经验
+                </Text>
+              </View>
+
+              <Text style={[styles.shortBio, { color: colors.text }]} numberOfLines={2}>
+                {item.shortBio}
+              </Text>
+
+              <View style={styles.skillsContainer}>
+                {item.skills.map((skill, index) => (
+                  <View 
+                    key={index}
+                    style={[styles.skillBadge, { backgroundColor: colors.primaryLight }]}
+                  >
+                    <Text style={[styles.skillText, { color: colors.primary }]}>
+                      {skill}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+
+              <View style={styles.cardFooter}>
+                <Text style={[styles.salary, { color: colors.primary }]}>
+                  ¥{item.monthlySalary}/月
+                </Text>
+                <CardLink 
+                  href={`/caregiver/${item.id}`}
+                  style={Platform.select({
+                    web: { textDecoration: 'none' },
+                    default: {}
+                  })}
+                >
+                  <View style={[styles.contactButton, { backgroundColor: colors.primary }]}>
+                    <Text style={styles.contactButtonText}>联系阿姨</Text>
+                  </View>
+                </CardLink>
+              </View>
+            </View>
+          </View>
         )}
       />
 
@@ -226,45 +275,53 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   caregiverCard: {
-    flexDirection: 'row',
     borderRadius: 16,
     marginBottom: 16,
     overflow: 'hidden',
   },
-  caregiverImage: {
-    width: 100,
-    height: 120,
-    resizeMode: 'cover',
-  },
-  caregiverInfo: {
-    flex: 1,
-    padding: 12,
+  cardHeader: {
+    flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eaeaea',
+  },
+  cardHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  caregiverAvatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginRight: 12,
   },
   caregiverName: {
     fontFamily: 'Poppins-SemiBold',
-    fontSize: 16,
+    fontSize: 18,
     marginBottom: 4,
   },
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 4,
   },
   locationText: {
     marginLeft: 4,
     fontFamily: 'Inter-Regular',
-    fontSize: 12,
-  },
-  caregiverSpecialty: {
-    fontFamily: 'Inter-Regular',
     fontSize: 14,
-    marginBottom: 8,
   },
-  caregiverFooter: {
+  favoriteButton: {
+    padding: 8,
+  },
+  cardBody: {
+    padding: 16,
+  },
+  ratingRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 12,
   },
   ratingContainer: {
     flexDirection: 'row',
@@ -272,12 +329,54 @@ const styles = StyleSheet.create({
   },
   ratingText: {
     marginLeft: 4,
-    fontSize: 12,
-    fontFamily: 'Inter-Regular',
-    color: '#888',
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+    color: '#666',
   },
-  caregiverRate: {
+  experience: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+  },
+  shortBio: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    lineHeight: 20,
+    marginBottom: 12,
+  },
+  skillsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 16,
+    marginHorizontal: -4,
+  },
+  skillBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    margin: 4,
+  },
+  skillText: {
+    fontSize: 12,
+    fontFamily: 'Inter-Medium',
+  },
+  cardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  salary: {
+    fontSize: 20,
+    fontFamily: 'Poppins-SemiBold',
+  },
+  contactButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 12,
+  },
+  contactButtonText: {
+    color: 'white',
+    fontSize: 14,
     fontFamily: 'Inter-SemiBold',
-    fontSize: 16,
   },
 });
