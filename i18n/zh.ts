@@ -9,18 +9,18 @@ export default {
 
   // Home Screen
   home: {
-    welcome: '寻找完美的照护者',
+    welcome: '寻找您心仪的阿姨',
     searchPlaceholder: '按名称或技能搜索',
-    featured: '推荐照护者',
+    featured: '推荐阿姨',
     categories: '分类',
-    nearYou: '附近的照护者',
+    nearYou: '附近的阿姨',
     viewAll: '查看全部',
     topRated: '高评分'
   },
 
   // Browse Screen
   browse: {
-    searchPlaceholder: '搜索照护者',
+    searchPlaceholder: '搜索阿姨',
     sortBy: '排序方式',
     filter: '筛选'
   },
@@ -53,7 +53,8 @@ export default {
     apply: '应用筛选',
     clearAll: '清除全部',
     stars: '星及以上',
-    anyRating: '任意评分'
+    anyRating: '任意评分',
+    age: '年龄范围'
   },
 
   // Caregiver Details
@@ -68,7 +69,7 @@ export default {
     availability: '可用时间',
     years: '年经验',
     verified: '已验证',
-    notFound: '未找到照护者',
+    notFound: '未找到阿姨',
   },
 
   // Messages
@@ -122,7 +123,7 @@ export default {
     name: '全名',
     namePlaceholder: '输入您的全名',
     employer: '我找阿姨',
-    caregiver: '我是照护者',
+    caregiver: '我是阿姨',
     termsNotice: '登录即表示您同意我们的服务条款和隐私政策',
     termsAgreement: '注册即表示您同意我们的服务条款和隐私政策',
     emailRequired: '邮箱为必填项',
