@@ -17,6 +17,7 @@ import Colors from '@/constants/Colors';
 import LanguageToggle from '@/components/LanguageToggle';
 import { featuredCaregivers } from '@/data/caregivers';
 import CitySelector from '@/components/CitySelector';
+import FilterModal from '@/components/FilterModal';
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
@@ -24,8 +25,11 @@ export default function HomeScreen() {
   const colors = Colors[colorScheme ?? 'light'];
   
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCity, setSelectedCity] = useState('New York');
+  const [selectedCity, setSelectedCity] = useState('武汉');
   const [isCitySelectorVisible, setCitySelectorVisible] = useState(false);
+  const [isFilterModalVisible, setFilterModalVisible] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [ageRange, setAgeRange] = useState([25, 55]);
 
   return (
     <ScrollView 
@@ -64,10 +68,31 @@ export default function HomeScreen() {
         </View>
         <TouchableOpacity 
           style={[styles.filterButton, { backgroundColor: colors.primary }]}
+          onPress={() => setFilterModalVisible(true)}
         >
           <Filter size={20} color="#fff" />
         </TouchableOpacity>
       </View>
+
+      {activeFilters.length > 0 && (
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          style={styles.filtersScrollView}
+          contentContainerStyle={styles.filtersContainer}
+        >
+          {activeFilters.map(filter => (
+            <View 
+              key={filter}
+              style={[styles.filterChip, { backgroundColor: colors.primaryLight }]}
+            >
+              <Text style={[styles.filterChipText, { color: colors.primary }]}>
+                {t(`filters.${filter.toLowerCase()}`)}
+              </Text>
+            </View>
+          ))}
+        </ScrollView>
+      )}
 
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
@@ -140,6 +165,18 @@ export default function HomeScreen() {
           setSelectedCity(city);
           setCitySelectorVisible(false);
         }}
+      />
+
+      <FilterModal
+        visible={isFilterModalVisible}
+        onClose={() => setFilterModalVisible(false)}
+        onApply={(filters, age) => {
+          setActiveFilters(filters);
+          setAgeRange(age);
+          setFilterModalVisible(false);
+        }}
+        activeFilters={activeFilters}
+        ageRange={ageRange}
       />
     </ScrollView>
   );
@@ -264,5 +301,22 @@ const styles = StyleSheet.create({
   categoryText: {
     fontFamily: 'Inter-Medium',
     fontSize: 14,
+  },
+  filtersScrollView: {
+    maxHeight: 40,
+    marginBottom: 16,
+  },
+  filtersContainer: {
+    paddingHorizontal: 16,
+  },
+  filterChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    marginRight: 8,
+  },
+  filterChipText: {
+    fontSize: 12,
+    fontFamily: 'Inter-Medium',
   },
 });
