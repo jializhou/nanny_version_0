@@ -19,16 +19,23 @@ import { cities } from '@/data/cities';
 interface FilterModalProps {
   visible: boolean;
   onClose: () => void;
-  onApply: (filters: string[], salaryRange: number[], ageRange?: number[]) => void;
+  onApply: (filters: string[], salaryRange: number[], startTime?: string) => void;
   activeFilters: string[];
   salaryRange?: number[];
 }
 
 const DEFAULT_SALARY_RANGE = [3000, 100000];
-const DEFAULT_AGE_RANGE = [35, 55];
-const HOMETOWNS = [
-  '湖北', '河北', '江苏', '广东', '湖南',
-  '四川', '浙江', '重庆', '北京', '上海'
+const START_TIMES = [
+  '2025年6月初',
+  '2025年6月中旬',
+  '2025年6月下旬',
+  '2025年7月初',
+  '2025年7月中旬',
+  '2025年7月下旬',
+  '2025年8月初',
+  '2025年8月中旬',
+  '2025年8月下旬',
+  '2025年9月及以后'
 ];
 
 export default function FilterModal({ 
@@ -46,15 +53,13 @@ export default function FilterModal({
   const [salaryRange, setSalaryRange] = useState(initialSalaryRange);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
-  const [ageRange, setAgeRange] = useState(DEFAULT_AGE_RANGE);
-  const [selectedHometown, setSelectedHometown] = useState<string | null>(null);
+  const [selectedStartTime, setSelectedStartTime] = useState<string | null>(null);
 
   useEffect(() => {
     if (visible) {
       setSelectedFilters(activeFilters);
       setSalaryRange(initialSalaryRange || DEFAULT_SALARY_RANGE);
-      setAgeRange(DEFAULT_AGE_RANGE);
-      setSelectedHometown(null);
+      setSelectedStartTime(null);
     }
   }, [visible, activeFilters, initialSalaryRange]);
   
@@ -69,10 +74,9 @@ export default function FilterModal({
   const clearAll = () => {
     setSelectedFilters([]);
     setSalaryRange(DEFAULT_SALARY_RANGE);
-    setAgeRange(DEFAULT_AGE_RANGE);
-    setSelectedHometown(null);
     setSearchQuery('');
     setSelectedCity(null);
+    setSelectedStartTime(null);
   };
   
   const handleApply = () => {
@@ -80,7 +84,7 @@ export default function FilterModal({
     if (selectedCity) {
       allFilters.push(selectedCity);
     }
-    onApply(allFilters, salaryRange);
+    onApply(allFilters, salaryRange, selectedStartTime || undefined);
     onClose();
   };
 
@@ -118,6 +122,39 @@ export default function FilterModal({
           <ScrollView style={styles.filtersContainer}>
             <View style={styles.section}>
               <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                最早开始时间
+              </Text>
+              <View style={styles.startTimeContainer}>
+                {START_TIMES.map((time) => (
+                  <TouchableOpacity
+                    key={time}
+                    style={[
+                      styles.startTimeButton,
+                      selectedStartTime === time
+                        ? { backgroundColor: colors.primaryLight, borderColor: colors.primary }
+                        : { backgroundColor: colors.card, borderColor: colors.border }
+                    ]}
+                    onPress={() => setSelectedStartTime(time)}
+                  >
+                    <Text
+                      style={[
+                        styles.startTimeText,
+                        { 
+                          color: selectedStartTime === time 
+                            ? colors.primary 
+                            : colors.text 
+                        }
+                      ]}
+                    >
+                      {time}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>
                 城市选择
               </Text>
               <View style={[styles.searchContainer, { backgroundColor: colors.card }]}>
@@ -153,70 +190,6 @@ export default function FilterModal({
                       ]}
                     >
                       {city.name}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                年龄范围
-              </Text>
-              <View style={styles.sliderContainer}>
-                <View style={styles.ageLabels}>
-                  <Text style={[styles.ageLabel, { color: colors.text }]}>
-                    {ageRange[0]}岁
-                  </Text>
-                  <Text style={[styles.ageLabel, { color: colors.text }]}>
-                    {ageRange[1]}岁
-                  </Text>
-                </View>
-                <MultiSlider
-                  values={[ageRange[0], ageRange[1]]}
-                  min={35}
-                  max={55}
-                  step={1}
-                  sliderLength={Platform.OS === 'web' ? 280 : undefined}
-                  onValuesChange={(values) => setAgeRange(values)}
-                  selectedStyle={{ backgroundColor: colors.primary }}
-                  unselectedStyle={{ backgroundColor: colors.border }}
-                  markerStyle={{
-                    backgroundColor: colors.primary,
-                    height: 20,
-                    width: 20,
-                  }}
-                />
-              </View>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                籍贯
-              </Text>
-              <View style={styles.hometownContainer}>
-                {HOMETOWNS.map((hometown) => (
-                  <TouchableOpacity
-                    key={hometown}
-                    style={[
-                      styles.hometownButton,
-                      selectedHometown === hometown
-                        ? { backgroundColor: colors.primaryLight, borderColor: colors.primary }
-                        : { backgroundColor: colors.card, borderColor: colors.border }
-                    ]}
-                    onPress={() => setSelectedHometown(hometown)}
-                  >
-                    <Text
-                      style={[
-                        styles.hometownButtonText,
-                        { 
-                          color: selectedHometown === hometown 
-                            ? colors.primary 
-                            : colors.text 
-                        }
-                      ]}
-                    >
-                      {hometown}
                     </Text>
                   </TouchableOpacity>
                 ))}
@@ -474,28 +447,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Inter-SemiBold',
   },
-  ageLabels: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  ageLabel: {
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
-  },
-  hometownContainer: {
+  startTimeContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     marginHorizontal: -4,
   },
-  hometownButton: {
+  startTimeButton: {
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
     margin: 4,
     borderWidth: 1,
   },
-  hometownButtonText: {
+  startTimeText: {
     fontSize: 14,
     fontFamily: 'Inter-Medium',
   },
