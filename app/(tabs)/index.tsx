@@ -89,7 +89,7 @@ export default function HomeScreen() {
         </Text>
 
         <Text style={[styles.caregiverRate, { color: colors.primary }]}>
-          ¥{item.hourlyRate}/小时
+          ¥{item.monthlySalary}/月
         </Text>
       </View>
     </Link>

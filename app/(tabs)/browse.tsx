@@ -27,7 +27,7 @@ export default function BrowseScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
-  const [ageRange, setAgeRange] = useState([25, 55]);
+  const [salaryRange, setSalaryRange] = useState([3000, 100000]);
   const [filteredCaregivers, setFilteredCaregivers] = useState(allCaregivers);
   
   const handleSearch = (text: string) => {
@@ -41,9 +41,9 @@ export default function BrowseScreen() {
     setFilteredCaregivers(filtered);
   };
 
-  const handleFilters = (filters: string[], age: number[]) => {
+  const handleFilters = (filters: string[], salary: number[]) => {
     setActiveFilters(filters);
-    setAgeRange(age);
+    setSalaryRange(salary);
     
     let filtered = allCaregivers;
     
@@ -55,6 +55,11 @@ export default function BrowseScreen() {
         )
       );
     }
+    
+    filtered = filtered.filter(caregiver => 
+      caregiver.monthlySalary >= salary[0] && 
+      caregiver.monthlySalary <= salary[1]
+    );
     
     setFilteredCaregivers(filtered);
   };
@@ -68,7 +73,7 @@ export default function BrowseScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.searchContainer}>
         <View style={[styles.searchInputContainer, { backgroundColor: colors.card }]}>
-          <Search size={20} color={colors.text} />
+          <Search size={20} color={colors.textDim} />
           <TextInput
             style={[styles.searchInput, { color: colors.text }]}
             placeholder={t('browse.searchPlaceholder')}
@@ -160,7 +165,7 @@ export default function BrowseScreen() {
         onClose={() => setFilterModalVisible(false)}
         onApply={handleFilters}
         activeFilters={activeFilters}
-        ageRange={ageRange}
+        salaryRange={salaryRange}
       />
     </View>
   );
