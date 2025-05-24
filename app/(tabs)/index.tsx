@@ -10,7 +10,7 @@ import {
   FlatList
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Star } from 'lucide-react-native';
+import { Star, BriefcaseIcon, SearchIcon } from 'lucide-react-native';
 import { Link } from 'expo-router';
 import { useColorScheme } from 'react-native';
 import Colors from '@/constants/Colors';
@@ -117,6 +117,29 @@ export default function HomeScreen() {
         </View>
       </View>
 
+      <View style={styles.jobLinks}>
+        <Link href="/register?type=caregiver" asChild>
+          <TouchableOpacity 
+            style={[styles.jobLink, { backgroundColor: colors.primaryLight }]}
+          >
+            <BriefcaseIcon size={24} color={colors.primary} />
+            <Text style={[styles.jobLinkText, { color: colors.primary }]}>
+              阿姨找工
+            </Text>
+          </TouchableOpacity>
+        </Link>
+        <Link href="/register?type=employer" asChild>
+          <TouchableOpacity 
+            style={[styles.jobLink, { backgroundColor: colors.primaryLight }]}
+          >
+            <SearchIcon size={24} color={colors.primary} />
+            <Text style={[styles.jobLinkText, { color: colors.primary }]}>
+              我要找阿姨
+            </Text>
+          </TouchableOpacity>
+        </Link>
+      </View>
+
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
           {t('home.featured')}
@@ -187,6 +210,25 @@ const styles = StyleSheet.create({
   locationText: {
     fontFamily: 'Inter-Medium',
     fontSize: 14,
+  },
+  jobLinks: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+  },
+  jobLink: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    borderRadius: 12,
+    marginHorizontal: 4,
+  },
+  jobLinkText: {
+    marginLeft: 8,
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
   },
   section: {
     marginBottom: 24,
