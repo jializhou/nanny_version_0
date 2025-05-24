@@ -56,12 +56,10 @@ export default function ProfileScreen() {
   };
 
   const handlePostJob = () => {
-    // Navigate to post job screen
     Alert.alert('发布找阿姨', '即将上线，敬请期待！');
   };
 
   const handleFindWork = () => {
-    // Navigate to find work screen
     Alert.alert('我要找工作', '即将上线，敬请期待！');
   };
 
@@ -96,7 +94,7 @@ export default function ProfileScreen() {
 
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
-          活动中心
+          招聘/求职
         </Text>
         
         <TouchableOpacity 
