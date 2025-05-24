@@ -6,16 +6,17 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
+  Platform,
   Dimensions,
-  Platform
+  FlatList
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useLocalSearchParams } from 'expo-router';
 import { useColorScheme } from 'react-native';
-import { Star, MapPin, Clock, DollarSign, MessageCircle, Heart, Shield, Check } from 'lucide-react-native';
+import { Star, MapPin, Heart, Shield, Check, Clock, Phone, MessageCircle } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { getCaregiverById } from '@/data/caregivers';
-import ReviewList from '@/components/ReviewList';
+import { getReviewsByCaregiver } from '@/data/reviews';
 
 const { width } = Dimensions.get('window');
 
@@ -26,6 +27,7 @@ export default function CaregiverDetailScreen() {
   const colors = Colors[colorScheme ?? 'light'];
   
   const caregiver = getCaregiverById(id);
+  const reviews = getReviewsByCaregiver(id);
   const [isFavorite, setIsFavorite] = useState(false);
   const [activeTab, setActiveTab] = useState('about');
 
@@ -33,185 +35,196 @@ export default function CaregiverDetailScreen() {
     return (
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <Text style={[styles.notFoundText, { color: colors.text }]}>
-          {t('caregiver.notFound')}
+          未找到该阿姨
         </Text>
       </View>
     );
   }
+
+  const renderReview = ({ item }) => (
+    <View style={[styles.reviewCard, { backgroundColor: colors.card }]}>
+      <View style={styles.reviewHeader}>
+        <Image source={{ uri: item.reviewerImage }} style={styles.reviewerAvatar} />
+        <View style={styles.reviewerInfo}>
+          <Text style={[styles.reviewerName, { color: colors.text }]}>
+            {item.reviewerName}
+          </Text>
+          <View style={styles.ratingContainer}>
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star
+                key={star}
+                size={14}
+                color="#FFD700"
+                fill={star <= item.rating ? "#FFD700" : "transparent"}
+              />
+            ))}
+          </View>
+        </View>
+        <Text style={[styles.reviewDate, { color: colors.textDim }]}>
+          {new Date(item.date).toLocaleDateString()}
+        </Text>
+      </View>
+      <Text style={[styles.reviewText, { color: colors.text }]}>
+        {item.text}
+      </Text>
+    </View>
+  );
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.imageContainer}>
           <Image source={{ uri: caregiver.imageUrl }} style={styles.coverImage} />
-          <View style={styles.favoriteButton}>
-            <TouchableOpacity
-              style={[
-                styles.iconButton,
-                { backgroundColor: colors.card }
-              ]}
-              onPress={() => setIsFavorite(!isFavorite)}
-            >
-              <Heart 
-                size={20} 
-                color={isFavorite ? colors.accent : colors.text} 
-                fill={isFavorite ? colors.accent : 'transparent'} 
-              />
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            style={[styles.favoriteButton, { backgroundColor: colors.card }]}
+            onPress={() => setIsFavorite(!isFavorite)}
+          >
+            <Heart 
+              size={24} 
+              color={isFavorite ? colors.accent : colors.text}
+              fill={isFavorite ? colors.accent : 'transparent'}
+            />
+          </TouchableOpacity>
         </View>
 
         <View style={styles.contentContainer}>
           <View style={styles.header}>
-            <Text style={[styles.name, { color: colors.text }]}>
-              {caregiver.name}
-            </Text>
-            <View style={styles.locationContainer}>
-              <MapPin size={16} color={colors.textDim} />
-              <Text style={[styles.location, { color: colors.textDim }]}>
-                {caregiver.city}
+            <View style={styles.headerLeft}>
+              <Text style={[styles.name, { color: colors.text }]}>
+                {caregiver.name}
               </Text>
-            </View>
-          </View>
-
-          <View style={styles.ratingRow}>
-            <View style={styles.ratingContainer}>
-              <Star size={18} color="#FFD700" fill="#FFD700" />
-              <Text style={[styles.rating, { color: colors.text }]}>
-                {caregiver.rating}
-              </Text>
-              <Text style={[styles.reviewCount, { color: colors.textDim }]}>
-                ({caregiver.reviewCount} {t('caregiver.reviews')})
-              </Text>
+              <View style={styles.locationContainer}>
+                <MapPin size={16} color={colors.textDim} />
+                <Text style={[styles.location, { color: colors.textDim }]}>
+                  {caregiver.city}
+                </Text>
+              </View>
             </View>
             <View style={[styles.verifiedBadge, { backgroundColor: colors.success + '20' }]}>
               <Shield size={14} color={colors.success} />
               <Text style={[styles.verifiedText, { color: colors.success }]}>
-                {t('caregiver.verified')}
+                已认证
               </Text>
             </View>
           </View>
 
-          <View style={styles.infoRow}>
-            <View style={[styles.infoCard, { backgroundColor: colors.card }]}>
+          <View style={styles.statsContainer}>
+            <View style={[styles.statCard, { backgroundColor: colors.card }]}>
+              <Star size={20} color="#FFD700" fill="#FFD700" />
+              <Text style={[styles.statValue, { color: colors.text }]}>
+                {caregiver.rating}
+              </Text>
+              <Text style={[styles.statLabel, { color: colors.textDim }]}>
+                评分
+              </Text>
+            </View>
+            <View style={[styles.statCard, { backgroundColor: colors.card }]}>
               <Clock size={20} color={colors.primary} />
-              <Text style={[styles.infoText, { color: colors.text }]}>
-                {caregiver.experience} {t('caregiver.years')}
+              <Text style={[styles.statValue, { color: colors.text }]}>
+                {caregiver.experience}年
+              </Text>
+              <Text style={[styles.statLabel, { color: colors.textDim }]}>
+                经验
               </Text>
             </View>
-            <View style={[styles.infoCard, { backgroundColor: colors.card }]}>
-              <DollarSign size={20} color={colors.primary} />
-              <Text style={[styles.infoText, { color: colors.text }]}>
-                ${caregiver.hourlyRate}/hr
+            <View style={[styles.statCard, { backgroundColor: colors.card }]}>
+              <MessageCircle size={20} color={colors.primary} />
+              <Text style={[styles.statValue, { color: colors.text }]}>
+                {caregiver.reviewCount}
+              </Text>
+              <Text style={[styles.statLabel, { color: colors.textDim }]}>
+                评价
               </Text>
             </View>
           </View>
 
-          <View style={styles.tabContainer}>
-            <TouchableOpacity
-              style={[
-                styles.tab,
-                activeTab === 'about' && { 
-                  borderBottomColor: colors.primary,
-                  borderBottomWidth: 2,
-                }
-              ]}
-              onPress={() => setActiveTab('about')}
-            >
-              <Text
-                style={[
-                  styles.tabText,
-                  { color: activeTab === 'about' ? colors.primary : colors.textDim }
-                ]}
-              >
-                {t('caregiver.about')}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.tab,
-                activeTab === 'reviews' && { 
-                  borderBottomColor: colors.primary,
-                  borderBottomWidth: 2,
-                }
-              ]}
-              onPress={() => setActiveTab('reviews')}
-            >
-              <Text
-                style={[
-                  styles.tabText,
-                  { color: activeTab === 'reviews' ? colors.primary : colors.textDim }
-                ]}
-              >
-                {t('caregiver.reviews')}
-              </Text>
-            </TouchableOpacity>
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              个人简介
+            </Text>
+            <Text style={[styles.bioText, { color: colors.text }]}>
+              {caregiver.bio}
+            </Text>
           </View>
 
-          {activeTab === 'about' ? (
-            <>
-              <View style={styles.section}>
-                <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                  {t('caregiver.bio')}
-                </Text>
-                <Text style={[styles.bioText, { color: colors.text }]}>
-                  {caregiver.bio}
-                </Text>
-              </View>
-
-              <View style={styles.section}>
-                <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                  {t('caregiver.skills')}
-                </Text>
-                <View style={styles.skillsContainer}>
-                  {caregiver.skills.map((skill) => (
-                    <View 
-                      key={skill} 
-                      style={[styles.skillBadge, { backgroundColor: colors.primaryLight }]}
-                    >
-                      <Text style={[styles.skillText, { color: colors.primary }]}>
-                        {skill}
-                      </Text>
-                    </View>
-                  ))}
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              技能特长
+            </Text>
+            <View style={styles.skillsContainer}>
+              {caregiver.skills.map((skill) => (
+                <View 
+                  key={skill} 
+                  style={[styles.skillBadge, { backgroundColor: colors.primaryLight }]}
+                >
+                  <Check size={14} color={colors.primary} />
+                  <Text style={[styles.skillText, { color: colors.primary }]}>
+                    {skill}
+                  </Text>
                 </View>
-              </View>
+              ))}
+            </View>
+          </View>
 
-              <View style={styles.section}>
-                <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                  {t('caregiver.certifications')}
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              证书资质
+            </Text>
+            <View style={styles.certificatesContainer}>
+              {caregiver.certifications.map((cert) => (
+                <View 
+                  key={cert}
+                  style={[styles.certCard, { backgroundColor: colors.card }]}
+                >
+                  <Shield size={20} color={colors.primary} />
+                  <Text style={[styles.certText, { color: colors.text }]}>
+                    {cert}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              服务评价
+            </Text>
+            <FlatList
+              data={reviews}
+              renderItem={renderReview}
+              keyExtractor={(item) => item.id}
+              scrollEnabled={false}
+              ListEmptyComponent={
+                <Text style={[styles.noReviewsText, { color: colors.textDim }]}>
+                  暂无评价
                 </Text>
-                {caregiver.certifications.map((cert) => (
-                  <View key={cert} style={styles.certificationItem}>
-                    <Check size={16} color={colors.success} />
-                    <Text style={[styles.certificationText, { color: colors.text }]}>
-                      {cert}
-                    </Text>
-                  </View>
-                ))}
-              </View>
-            </>
-          ) : (
-            <ReviewList caregiverId={caregiver.id} />
-          )}
+              }
+            />
+          </View>
         </View>
       </ScrollView>
 
       <View style={[styles.footer, { backgroundColor: colors.card }]}>
         <View>
           <Text style={[styles.rateLabel, { color: colors.textDim }]}>
-            {t('caregiver.hourlyRate')}
+            月薪
           </Text>
           <Text style={[styles.rateValue, { color: colors.text }]}>
-            ${caregiver.hourlyRate}/hr
+            ¥{caregiver.monthlySalary}/月
           </Text>
         </View>
-        <TouchableOpacity style={[styles.contactButton, { backgroundColor: colors.primary }]}>
-          <MessageCircle size={20} color="#fff" />
-          <Text style={styles.contactButtonText}>
-            {t('caregiver.contact')}
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.footerButtons}>
+          <TouchableOpacity 
+            style={[styles.phoneButton, { backgroundColor: colors.primaryLight }]}
+          >
+            <Phone size={20} color={colors.primary} />
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.contactButton, { backgroundColor: colors.primary }]}>
+            <Text style={styles.contactButtonText}>
+              立即联系
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -233,8 +246,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: Platform.OS === 'ios' ? 50 : 16,
     right: 16,
-  },
-  iconButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
@@ -245,7 +256,14 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   header: {
-    marginBottom: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+  },
+  headerLeft: {
+    flex: 1,
+    marginRight: 16,
   },
   name: {
     fontSize: 24,
@@ -257,26 +275,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   location: {
-    marginLeft: 4,
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-  },
-  ratingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  rating: {
-    marginLeft: 4,
-    fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
-  },
-  reviewCount: {
     marginLeft: 4,
     fontSize: 14,
     fontFamily: 'Inter-Regular',
@@ -293,35 +291,26 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: 'Inter-Medium',
   },
-  infoRow: {
+  statsContainer: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: 24,
   },
-  infoCard: {
-    flexDirection: 'row',
+  statCard: {
+    flex: 1,
     alignItems: 'center',
     padding: 12,
     borderRadius: 12,
-    marginRight: 12,
+    marginHorizontal: 4,
   },
-  infoText: {
-    marginLeft: 8,
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
+  statValue: {
+    fontSize: 18,
+    fontFamily: 'Poppins-SemiBold',
+    marginVertical: 4,
   },
-  tabContainer: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eaeaea',
-    marginBottom: 16,
-  },
-  tab: {
-    paddingVertical: 12,
-    marginRight: 24,
-  },
-  tabText: {
-    fontSize: 16,
-    fontFamily: 'Inter-Medium',
+  statLabel: {
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
   },
   section: {
     marginBottom: 24,
@@ -342,24 +331,74 @@ const styles = StyleSheet.create({
     marginHorizontal: -4,
   },
   skillBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
     margin: 4,
   },
   skillText: {
-    fontSize: 12,
+    marginLeft: 6,
+    fontSize: 14,
     fontFamily: 'Inter-Medium',
   },
-  certificationItem: {
+  certificatesContainer: {
+    marginHorizontal: -4,
+  },
+  certCard: {
     flexDirection: 'row',
     alignItems: 'center',
+    padding: 12,
+    borderRadius: 12,
     marginBottom: 8,
   },
-  certificationText: {
-    marginLeft: 8,
+  certText: {
+    marginLeft: 12,
     fontSize: 14,
     fontFamily: 'Inter-Regular',
+  },
+  reviewCard: {
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  reviewHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  reviewerAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 12,
+  },
+  reviewerInfo: {
+    flex: 1,
+  },
+  reviewerName: {
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+    marginBottom: 4,
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+  },
+  reviewDate: {
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+  },
+  reviewText: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    lineHeight: 20,
+  },
+  noReviewsText: {
+    textAlign: 'center',
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    marginTop: 12,
   },
   footer: {
     flexDirection: 'row',
@@ -375,21 +414,30 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   rateValue: {
-    fontSize: 18,
+    fontSize: 20,
     fontFamily: 'Poppins-SemiBold',
   },
-  contactButton: {
+  footerButtons: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
+  },
+  phoneButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  contactButton: {
+    paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 12,
   },
   contactButtonText: {
-    marginLeft: 8,
+    color: 'white',
     fontSize: 16,
     fontFamily: 'Inter-SemiBold',
-    color: 'white',
   },
   notFoundText: {
     fontSize: 18,
