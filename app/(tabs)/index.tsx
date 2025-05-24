@@ -7,7 +7,8 @@ import {
   TextInput, 
   TouchableOpacity,
   Image,
-  Platform
+  Platform,
+  FlatList
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Search, MapPin, Filter, Star } from 'lucide-react-native';
@@ -30,6 +31,49 @@ export default function HomeScreen() {
   const [isFilterModalVisible, setFilterModalVisible] = useState(false);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [ageRange, setAgeRange] = useState([25, 55]);
+
+  const renderCaregiverCard = ({ item, index }: { item: typeof featuredCaregivers[0], index: number }) => (
+    <Link 
+      href={`/caregiver/${item.id}`}
+      style={[
+        styles.featuredCard,
+        { 
+          backgroundColor: colors.card,
+          marginLeft: index % 2 === 0 ? 0 : 8,
+          marginRight: index % 2 === 0 ? 8 : 0,
+          ...Platform.select({
+            web: { 
+              textDecoration: 'none',
+              display: 'block',
+              width: 'calc(50% - 8px)'
+            },
+            default: {
+              width: '48%'
+            }
+          })
+        }
+      ]}
+    >
+      <Image source={{ uri: item.imageUrl }} style={styles.caregiverImage} />
+      <View style={styles.featuredCardContent}>
+        <Text style={[styles.caregiverName, { color: colors.text }]} numberOfLines={1}>
+          {item.name}
+        </Text>
+        <View style={styles.ratingContainer}>
+          <Star size={14} color="#FFD700" fill="#FFD700" />
+          <Text style={styles.ratingText}>
+            {item.rating} ({item.reviewCount})
+          </Text>
+        </View>
+        <Text style={[styles.caregiverSpecialty, { color: colors.textDim }]} numberOfLines={1}>
+          {item.specialty}
+        </Text>
+        <Text style={[styles.caregiverRate, { color: colors.primary }]}>
+          ¥{item.hourlyRate}/小时
+        </Text>
+      </View>
+    </Link>
+  );
 
   return (
     <ScrollView 
@@ -98,46 +142,11 @@ export default function HomeScreen() {
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
           {t('home.featured')}
         </Text>
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.featuredScrollContent}
-        >
-          {featuredCaregivers.map((caregiver) => (
-            <Link 
-              key={caregiver.id} 
-              href={`/caregiver/${caregiver.id}`}
-              style={Platform.select({
-                web: { textDecoration: 'none', display: 'block' },
-                default: {}
-              })}
-            >
-              <TouchableOpacity style={[styles.featuredCard, { backgroundColor: colors.card }]}>
-                <Image 
-                  source={{ uri: caregiver.imageUrl }} 
-                  style={styles.caregiverImage} 
-                />
-                <View style={styles.featuredCardContent}>
-                  <Text style={[styles.caregiverName, { color: colors.text }]}>
-                    {caregiver.name}
-                  </Text>
-                  <View style={styles.ratingContainer}>
-                    <Star size={14} color="#FFD700" fill="#FFD700" />
-                    <Text style={styles.ratingText}>
-                      {caregiver.rating} ({caregiver.reviewCount})
-                    </Text>
-                  </View>
-                  <Text style={[styles.caregiverSpecialty, { color: colors.textDim }]}>
-                    {caregiver.specialty}
-                  </Text>
-                  <Text style={[styles.caregiverRate, { color: colors.primary }]}>
-                    ${caregiver.hourlyRate}/hr
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            </Link>
+        <View style={styles.featuredGrid}>
+          {featuredCaregivers.map((caregiver, index) => (
+            renderCaregiverCard({ item: caregiver, index })
           ))}
-        </ScrollView>
+        </View>
       </View>
 
       <View style={styles.section}>
@@ -145,13 +154,13 @@ export default function HomeScreen() {
           {t('home.categories')}
         </Text>
         <View style={styles.categoriesContainer}>
-          {['Nanny', 'Babysitter', 'Tutor', 'Special Needs'].map((category) => (
+          {['育婴', '保洁', '老人护理', '月嫂'].map((category) => (
             <TouchableOpacity 
               key={category}
               style={[styles.categoryButton, { backgroundColor: colors.card }]}
             >
               <Text style={[styles.categoryText, { color: colors.text }]}>
-                {t(`categories.${category.toLowerCase().replace(' ', '')}`)}
+                {category}
               </Text>
             </TouchableOpacity>
           ))}
@@ -245,14 +254,15 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-SemiBold',
     marginBottom: 16,
   },
-  featuredScrollContent: {
-    paddingRight: 16,
+  featuredGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginHorizontal: -8,
   },
   featuredCard: {
-    width: 220,
     borderRadius: 16,
-    marginRight: 16,
     overflow: 'hidden',
+    marginBottom: 16,
   },
   caregiverImage: {
     width: '100%',
