@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'react-native';
-import { X, Search, Calendar } from 'lucide-react-native';
+import { X, Search } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import { cities } from '@/data/cities';
@@ -42,7 +42,6 @@ export default function FilterModal({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [showDatePicker, setShowDatePicker] = useState(false);
 
   useEffect(() => {
     if (visible) {
