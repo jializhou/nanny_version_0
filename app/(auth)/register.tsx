@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import {
   View,
   Text,
@@ -28,7 +28,7 @@ export default function RegisterScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [userType, setUserType] = useState<'parent' | 'caregiver'>('parent');
+  const [userType, setUserType] = useState<'employer' | 'caregiver'>('employer');
   const [errors, setErrors] = useState({
     name: '',
     email: '',
@@ -36,7 +36,7 @@ export default function RegisterScreen() {
     confirmPassword: '',
   });
 
-  const validateForm = useCallback(() => {
+  const validateForm = () => {
     let isValid = true;
     const newErrors = {
       name: '',
@@ -73,13 +73,13 @@ export default function RegisterScreen() {
 
     setErrors(newErrors);
     return isValid;
-  }, [name, email, password, confirmPassword, t]);
+  };
 
-  const handleRegister = useCallback(() => {
+  const handleRegister = () => {
     if (validateForm()) {
       register(name, email, password, userType);
     }
-  }, [validateForm, register, name, email, password, userType]);
+  };
 
   return (
     <KeyboardAvoidingView
@@ -104,24 +104,24 @@ export default function RegisterScreen() {
           <TouchableOpacity
             style={[
               styles.userTypeButton,
-              userType === 'parent' && { 
+              userType === 'employer' && { 
                 backgroundColor: colors.primaryLight,
                 borderColor: colors.primary,
               },
-              userType !== 'parent' && { 
+              userType !== 'employer' && { 
                 backgroundColor: colors.card,
                 borderColor: 'transparent',
               }
             ]}
-            onPress={() => setUserType('parent')}
+            onPress={() => setUserType('employer')}
           >
             <Text
               style={[
                 styles.userTypeText,
-                { color: userType === 'parent' ? colors.primary : colors.textDim }
+                { color: userType === 'employer' ? colors.primary : colors.textDim }
               ]}
             >
-              {t('auth.parent')}
+              {t('auth.employer')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -285,8 +285,12 @@ export default function RegisterScreen() {
             <Text style={[styles.loginText, { color: colors.textDim }]}>
               {t('auth.haveAccount')}
             </Text>
-            <Link href="/login" style={[styles.loginLink, { color: colors.primary }]}>
-              <Text>{t('auth.login')}</Text>
+            <Link href="/login" asChild>
+              <TouchableOpacity>
+                <Text style={[styles.loginLink, { color: colors.primary }]}>
+                  {t('auth.login')}
+                </Text>
+              </TouchableOpacity>
             </Link>
           </View>
         </View>
@@ -396,7 +400,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Inter-SemiBold',
     marginLeft: 4,
-    textDecoration: Platform.OS === 'web' ? 'none' : undefined,
   },
   footer: {
     marginTop: 'auto',
