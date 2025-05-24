@@ -19,15 +19,17 @@ interface FilterModalProps {
   onClose: () => void;
   onApply: (filters: string[], ageRange: number[]) => void;
   activeFilters: string[];
-  ageRange: number[];
+  ageRange?: number[];
 }
+
+const DEFAULT_AGE_RANGE = [25, 55];
 
 export default function FilterModal({ 
   visible, 
   onClose, 
   onApply,
   activeFilters,
-  ageRange: initialAgeRange
+  ageRange: initialAgeRange = DEFAULT_AGE_RANGE
 }: FilterModalProps) {
   const colorScheme = useColorScheme();
   const { t } = useTranslation();
@@ -39,7 +41,7 @@ export default function FilterModal({
   useEffect(() => {
     if (visible) {
       setSelectedFilters(activeFilters);
-      setAgeRange(initialAgeRange);
+      setAgeRange(initialAgeRange || DEFAULT_AGE_RANGE);
     }
   }, [visible, activeFilters, initialAgeRange]);
   
@@ -53,7 +55,7 @@ export default function FilterModal({
   
   const clearAll = () => {
     setSelectedFilters([]);
-    setAgeRange([25, 55]);
+    setAgeRange(DEFAULT_AGE_RANGE);
   };
   
   const handleApply = () => {
