@@ -10,7 +10,7 @@ import {
   FlatList
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Star, BriefcaseIcon, SearchIcon } from 'lucide-react-native';
+import { Star, Briefcase as BriefcaseIcon, Search as SearchIcon } from 'lucide-react-native';
 import { Link } from 'expo-router';
 import { useColorScheme } from 'react-native';
 import Colors from '@/constants/Colors';
