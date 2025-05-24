@@ -42,6 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const segments = useSegments();
   const { t } = useTranslation();
+  const [isMounted, setIsMounted] = useState(false);
 
   // Check if the current route is public
   const isPublicRoute = () => {
@@ -73,11 +74,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Set mounted state
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
+
   // Load the persisted user data
   useEffect(() => {
     const loadUser = async () => {
+      if (!isMounted) return;
+
       try {
-        setIsLoading(true);
         const sessionValid = await isSessionValid();
         if (!sessionValid) {
           await AsyncStorage.multiRemove([USER_STORAGE_KEY, SESSION_TIMESTAMP_KEY]);
@@ -95,54 +103,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.error('Error loading user data:', error);
         setUser(null);
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     loadUser();
-  }, []);
+  }, [isMounted]);
 
   // Handle routing based on auth state
   useEffect(() => {
-    if (isLoading) return;
+    if (!isMounted || isLoading) return;
 
     const inAuthGroup = segments[0] === '(auth)';
 
     if (!user && !inAuthGroup && !isPublicRoute()) {
-      // Redirect to login if not authenticated and not on a public or auth route
       router.replace('/login');
     } else if (user && inAuthGroup) {
-      // Redirect to home if authenticated but still on an auth screen
       router.replace('/');
     }
-  }, [user, segments, isLoading]);
+  }, [user, segments, isLoading, isMounted]);
 
   // Login function
   const login = async (email: string, password: string) => {
+    if (!isMounted) return;
+
     try {
       setIsLoading(true);
       
       // Mock API call - In a real app, this would call your authentication API
-      setTimeout(async () => {
-        // Mock successful login
-        const mockUser: User = {
-          id: '1',
-          name: 'Sarah Johnson',
-          email: email,
-          profileImage: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg',
-          userType: 'employer',
-        };
-        
-        // Store user data and session timestamp
-        await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(mockUser));
-        await updateSessionTimestamp();
-        
+      const mockUser: User = {
+        id: '1',
+        name: 'Sarah Johnson',
+        email: email,
+        profileImage: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg',
+        userType: 'employer',
+      };
+      
+      // Store user data and session timestamp
+      await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(mockUser));
+      await updateSessionTimestamp();
+      
+      if (isMounted) {
         setUser(mockUser);
         setIsLoading(false);
-      }, 1000);
+      }
     } catch (error) {
-      setIsLoading(false);
-      Alert.alert(t('auth.error'), t('auth.loginError'));
+      if (isMounted) {
+        setIsLoading(false);
+        Alert.alert(t('auth.error'), t('auth.loginError'));
+      }
     }
   };
 
@@ -153,35 +164,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     password: string, 
     userType: 'employer' | 'caregiver'
   ) => {
+    if (!isMounted) return;
+
     try {
       setIsLoading(true);
       
       // Mock API call - In a real app, this would call your registration API
-      setTimeout(async () => {
-        // Mock successful registration and login
-        const mockUser: User = {
-          id: '1',
-          name: name,
-          email: email,
-          profileImage: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg',
-          userType: userType,
-        };
-        
-        // Store user data and session timestamp
-        await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(mockUser));
-        await updateSessionTimestamp();
-        
+      const mockUser: User = {
+        id: '1',
+        name: name,
+        email: email,
+        profileImage: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg',
+        userType: userType,
+      };
+      
+      // Store user data and session timestamp
+      await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(mockUser));
+      await updateSessionTimestamp();
+      
+      if (isMounted) {
         setUser(mockUser);
         setIsLoading(false);
-      }, 1000);
+      }
     } catch (error) {
-      setIsLoading(false);
-      Alert.alert(t('auth.error'), t('auth.registerError'));
+      if (isMounted) {
+        setIsLoading(false);
+        Alert.alert(t('auth.error'), t('auth.registerError'));
+      }
     }
   };
 
   // Logout function
   const logout = async () => {
+    if (!isMounted) return;
+
     try {
       await AsyncStorage.multiRemove([USER_STORAGE_KEY, SESSION_TIMESTAMP_KEY]);
       setUser(null);
