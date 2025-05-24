@@ -32,23 +32,22 @@ export default function HomeScreen() {
         styles.featuredCard,
         { 
           backgroundColor: colors.card,
-          marginLeft: index % 2 === 0 ? 0 : 8,
-          marginRight: index % 2 === 0 ? 8 : 0,
+          marginLeft: index === 0 ? 0 : 16,
           ...Platform.select({
             web: { 
               textDecoration: 'none',
-              display: 'block',
-              width: 'calc(50% - 8px)'
             },
-            default: {
-              width: '48%'
-            }
+            default: {}
           })
         }
       ]}
     >
       <View style={styles.imageContainer}>
-        <Image source={{ uri: item.imageUrl }} style={styles.caregiverImage} />
+        <Image 
+          source={{ uri: item.imageUrl }} 
+          style={styles.caregiverImage}
+          resizeMode="cover"
+        />
         <View 
           style={[
             styles.availabilityBadge,
@@ -72,7 +71,7 @@ export default function HomeScreen() {
         </View>
         
         <View style={styles.skillsContainer}>
-          {item.skills.map((skill, skillIndex) => (
+          {item.skills.slice(0, 3).map((skill, skillIndex) => (
             <View 
               key={skillIndex} 
               style={[
@@ -133,13 +132,17 @@ export default function HomeScreen() {
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
           {t('home.featured')}
         </Text>
-        <View style={styles.featuredGrid}>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.featuredScrollContent}
+        >
           {featuredCaregivers.map((caregiver, index) => (
             <React.Fragment key={caregiver.id}>
               {renderCaregiverCard({ item: caregiver, index })}
             </React.Fragment>
           ))}
-        </View>
+        </ScrollView>
       </View>
 
       <View style={styles.section}>
@@ -208,23 +211,22 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-SemiBold',
     marginBottom: 16,
   },
-  featuredGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginHorizontal: -8,
+  featuredScrollContent: {
+    paddingRight: 16,
   },
   featuredCard: {
+    width: 280,
     borderRadius: 16,
     overflow: 'hidden',
-    marginBottom: 16,
   },
   imageContainer: {
     position: 'relative',
+    width: '100%',
+    height: 180,
   },
   caregiverImage: {
     width: '100%',
-    height: 150,
-    resizeMode: 'cover',
+    height: '100%',
   },
   availabilityBadge: {
     position: 'absolute',
