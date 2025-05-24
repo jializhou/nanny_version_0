@@ -6,39 +6,42 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Slider
+  Platform
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'react-native';
 import { X } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
+import MultiSlider from '@ptomasroos/react-native-multi-slider';
 
 interface FilterModalProps {
   visible: boolean;
   onClose: () => void;
-  onApply: (filters: string[]) => void;
+  onApply: (filters: string[], ageRange: number[]) => void;
   activeFilters: string[];
+  ageRange: number[];
 }
 
 export default function FilterModal({ 
   visible, 
   onClose, 
   onApply,
-  activeFilters 
+  activeFilters,
+  ageRange: initialAgeRange
 }: FilterModalProps) {
   const colorScheme = useColorScheme();
   const { t } = useTranslation();
   const colors = Colors[colorScheme ?? 'light'];
   
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
-  const [priceRange, setPriceRange] = useState([15, 50]);
-  const [rating, setRating] = useState(0);
+  const [ageRange, setAgeRange] = useState(initialAgeRange);
   
   useEffect(() => {
     if (visible) {
       setSelectedFilters(activeFilters);
+      setAgeRange(initialAgeRange);
     }
-  }, [visible, activeFilters]);
+  }, [visible, activeFilters, initialAgeRange]);
   
   const toggleFilter = (filter: string) => {
     if (selectedFilters.includes(filter)) {
@@ -50,12 +53,11 @@ export default function FilterModal({
   
   const clearAll = () => {
     setSelectedFilters([]);
-    setPriceRange([15, 50]);
-    setRating(0);
+    setAgeRange([25, 55]);
   };
   
   const handleApply = () => {
-    onApply(selectedFilters);
+    onApply(selectedFilters, ageRange);
   };
 
   return (
@@ -79,43 +81,13 @@ export default function FilterModal({
           <ScrollView style={styles.filtersContainer}>
             <View style={styles.section}>
               <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                {t('filters.categories')}
-              </Text>
-              <View style={styles.filterOptionsContainer}>
-                {['Nanny', 'Babysitter', 'Tutor', 'SpecialNeeds'].map((filter) => (
-                  <TouchableOpacity
-                    key={filter}
-                    style={[
-                      styles.filterOption,
-                      selectedFilters.includes(filter)
-                        ? { backgroundColor: colors.primaryLight, borderColor: colors.primary }
-                        : { backgroundColor: colors.card, borderColor: colors.border }
-                    ]}
-                    onPress={() => toggleFilter(filter)}
-                  >
-                    <Text
-                      style={[
-                        styles.filterOptionText,
-                        { 
-                          color: selectedFilters.includes(filter) 
-                            ? colors.primary 
-                            : colors.text 
-                        }
-                      ]}
-                    >
-                      {t(`categories.${filter.toLowerCase()}`)}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={[styles.sectionTitle, { color: colors.text }]}>
                 {t('filters.skills')}
               </Text>
               <View style={styles.filterOptionsContainer}>
-                {['FirstAid', 'Cooking', 'Multilingual', 'Driving', 'Homework', 'Activities'].map((filter) => (
+                {[
+                  '育婴', '做饭', '保洁', '老人护理', 
+                  '住家', '钟点工', '早教', '月嫂'
+                ].map((filter) => (
                   <TouchableOpacity
                     key={filter}
                     style={[
@@ -136,7 +108,7 @@ export default function FilterModal({
                         }
                       ]}
                     >
-                      {t(`skills.${filter.toLowerCase()}`)}
+                      {filter}
                     </Text>
                   </TouchableOpacity>
                 ))}
@@ -145,50 +117,32 @@ export default function FilterModal({
 
             <View style={styles.section}>
               <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                {t('filters.priceRange')}
+                {t('filters.age')}
               </Text>
               <View style={styles.sliderContainer}>
-                <View style={styles.priceLabels}>
-                  <Text style={[styles.priceLabel, { color: colors.text }]}>
-                    ${priceRange[0]}
+                <View style={styles.ageLabels}>
+                  <Text style={[styles.ageLabel, { color: colors.text }]}>
+                    {ageRange[0]} 岁
                   </Text>
-                  <Text style={[styles.priceLabel, { color: colors.text }]}>
-                    ${priceRange[1]}
+                  <Text style={[styles.ageLabel, { color: colors.text }]}>
+                    {ageRange[1]} 岁
                   </Text>
                 </View>
-                <Slider
-                  minimumValue={10}
-                  maximumValue={100}
-                  value={priceRange[1]}
-                  onValueChange={(value) => setPriceRange([priceRange[0], Math.round(value)])}
-                  minimumTrackTintColor={colors.primary}
-                  maximumTrackTintColor={colors.border}
-                  thumbTintColor={colors.primary}
+                <MultiSlider
+                  values={[ageRange[0], ageRange[1]]}
+                  min={18}
+                  max={65}
                   step={1}
+                  sliderLength={Platform.OS === 'web' ? 280 : undefined}
+                  onValuesChange={(values) => setAgeRange(values)}
+                  selectedStyle={{ backgroundColor: colors.primary }}
+                  unselectedStyle={{ backgroundColor: colors.border }}
+                  markerStyle={{
+                    backgroundColor: colors.primary,
+                    height: 20,
+                    width: 20,
+                  }}
                 />
-              </View>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                {t('filters.rating')}
-              </Text>
-              <View style={styles.ratingContainer}>
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <TouchableOpacity
-                    key={star}
-                    style={[
-                      styles.starButton,
-                      { backgroundColor: star <= rating ? '#FFD700' : colors.card }
-                    ]}
-                    onPress={() => setRating(star)}
-                  >
-                    <Text style={styles.starText}>★</Text>
-                  </TouchableOpacity>
-                ))}
-                <Text style={[styles.ratingText, { color: colors.text }]}>
-                  {rating > 0 ? `${rating}+ ${t('filters.stars')}` : t('filters.anyRating')}
-                </Text>
               </View>
             </View>
           </ScrollView>
@@ -273,33 +227,12 @@ const styles = StyleSheet.create({
   sliderContainer: {
     paddingHorizontal: 4,
   },
-  priceLabels: {
+  ageLabels: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 8,
   },
-  priceLabel: {
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  starButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 8,
-  },
-  starText: {
-    fontSize: 20,
-    color: 'white',
-  },
-  ratingText: {
-    marginLeft: 8,
+  ageLabel: {
     fontSize: 14,
     fontFamily: 'Inter-Medium',
   },
