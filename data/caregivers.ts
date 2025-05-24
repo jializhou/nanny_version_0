@@ -14,7 +14,8 @@ interface Caregiver {
   skills: string[];
   certifications: string[];
   shortBio: string;
-  startTime: string; // Added field for earliest start time
+  startTime: string;
+  available: boolean;
   images?: {
     cooking?: string;
     childcare?: string;
@@ -40,6 +41,7 @@ export const featuredCaregivers: Caregiver[] = [
     skills: ['育婴', '做饭', '早教', '月嫂'],
     certifications: ['育婴师证书', '健康证', '母婴护理证'],
     startTime: '2025年6月下旬',
+    available: true,
     images: {
       cooking: 'https://images.pexels.com/photos/4252137/pexels-photo-4252137.jpeg',
       childcare: 'https://images.pexels.com/photos/3875225/pexels-photo-3875225.jpeg',
@@ -63,6 +65,7 @@ export const featuredCaregivers: Caregiver[] = [
     skills: ['老人护理', '做饭', '保洁', '康复护理'],
     certifications: ['养老护理证书', '健康证', '急救证书'],
     startTime: '2025年7月初',
+    available: false,
     images: {
       cooking: 'https://images.pexels.com/photos/4252138/pexels-photo-4252138.jpeg',
       cleaning: 'https://images.pexels.com/photos/4108716/pexels-photo-4108716.jpeg'
@@ -85,6 +88,7 @@ export const featuredCaregivers: Caregiver[] = [
     skills: ['保洁', '做饭', '收纳整理', '日常护理'],
     certifications: ['家政服务证书', '健康证', '厨师证'],
     startTime: '2025年6月中旬',
+    available: true,
     images: {
       cooking: 'https://images.pexels.com/photos/4252139/pexels-photo-4252139.jpeg',
       cleaning: 'https://images.pexels.com/photos/4108717/pexels-photo-4108717.jpeg'
@@ -107,6 +111,7 @@ export const featuredCaregivers: Caregiver[] = [
     skills: ['住家', '做饭', '保洁', '老人护理'],
     certifications: ['家政服务证书', '健康证', '育婴证'],
     startTime: '2025年8月初',
+    available: true,
     images: {
       cooking: 'https://images.pexels.com/photos/4252140/pexels-photo-4252140.jpeg',
       childcare: 'https://images.pexels.com/photos/3875226/pexels-photo-3875226.jpeg',
@@ -134,6 +139,7 @@ export const allCaregivers: Caregiver[] = [
     skills: ['月嫂', '育婴', '做饭', '产妇护理'],
     certifications: ['高级母婴护理师', '催乳师证书', '健康证'],
     startTime: '2025年7月中旬',
+    available: true,
     images: {
       cooking: 'https://images.pexels.com/photos/4252141/pexels-photo-4252141.jpeg',
       childcare: 'https://images.pexels.com/photos/3875227/pexels-photo-3875227.jpeg'
@@ -156,6 +162,7 @@ export const allCaregivers: Caregiver[] = [
     skills: ['育婴', '早教', '做饭', '保洁'],
     certifications: ['育婴师证书', '早教证书', '健康证'],
     startTime: '2025年9月初',
+    available: true,
     images: {
       childcare: 'https://images.pexels.com/photos/3875228/pexels-photo-3875228.jpeg',
       cleaning: 'https://images.pexels.com/photos/4108719/pexels-photo-4108719.jpeg'
@@ -178,6 +185,7 @@ export const allCaregivers: Caregiver[] = [
     skills: ['保洁', '收纳', '洗衣', '擦玻璃'],
     certifications: ['家政服务证书', '健康证'],
     startTime: '2025年6月初',
+    available: true,
     images: {
       cleaning: 'https://images.pexels.com/photos/4108720/pexels-photo-4108720.jpeg'
     }
@@ -199,6 +207,7 @@ export const allCaregivers: Caregiver[] = [
     skills: ['老人护理', '做饭', '保洁', '康复护理'],
     certifications: ['养老护理证书', '健康证', '急救证书'],
     startTime: '2025年8月中旬',
+    available: true,
     images: {
       cooking: 'https://images.pexels.com/photos/4252142/pexels-photo-4252142.jpeg',
       cleaning: 'https://images.pexels.com/photos/4108721/pexels-photo-4108721.jpeg'

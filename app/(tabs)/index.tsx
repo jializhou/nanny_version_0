@@ -47,7 +47,19 @@ export default function HomeScreen() {
         }
       ]}
     >
-      <Image source={{ uri: item.imageUrl }} style={styles.caregiverImage} />
+      <View style={styles.imageContainer}>
+        <Image source={{ uri: item.imageUrl }} style={styles.caregiverImage} />
+        <View 
+          style={[
+            styles.availabilityBadge,
+            { backgroundColor: item.available ? colors.success : colors.error }
+          ]}
+        >
+          <Text style={styles.availabilityText}>
+            {item.available ? '在职' : '已预约'}
+          </Text>
+        </View>
+      </View>
       <View style={styles.featuredCardContent}>
         <Text style={[styles.caregiverName, { color: colors.text }]} numberOfLines={1}>
           {item.name}
@@ -206,10 +218,26 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginBottom: 16,
   },
+  imageContainer: {
+    position: 'relative',
+  },
   caregiverImage: {
     width: '100%',
     height: 150,
     resizeMode: 'cover',
+  },
+  availabilityBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  availabilityText: {
+    color: 'white',
+    fontSize: 12,
+    fontFamily: 'Inter-Medium',
   },
   featuredCardContent: {
     padding: 12,
