@@ -73,11 +73,6 @@ export default function BrowseScreen() {
     );
   };
 
-  const CardLink = Platform.select({
-    web: Link,
-    default: Pressable,
-  }) as typeof Link;
-
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.searchContainer}>
@@ -188,11 +183,27 @@ export default function BrowseScreen() {
                 ))}
               </View>
 
+              {item.images && (
+                <ScrollView 
+                  horizontal 
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.imagesContainer}
+                >
+                  {Object.entries(item.images).map(([key, url]) => (
+                    <Image 
+                      key={key}
+                      source={{ uri: url }}
+                      style={styles.workImage}
+                    />
+                  ))}
+                </ScrollView>
+              )}
+
               <View style={styles.cardFooter}>
                 <Text style={[styles.salary, { color: colors.primary }]}>
                   ¥{item.monthlySalary}/月
                 </Text>
-                <CardLink 
+                <Link 
                   href={`/caregiver/${item.id}`}
                   style={Platform.select({
                     web: { textDecoration: 'none' },
@@ -202,7 +213,7 @@ export default function BrowseScreen() {
                   <View style={[styles.contactButton, { backgroundColor: colors.primary }]}>
                     <Text style={styles.contactButtonText}>联系阿姨</Text>
                   </View>
-                </CardLink>
+                </Link>
               </View>
             </View>
           </View>
@@ -378,5 +389,14 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 14,
     fontFamily: 'Inter-SemiBold',
+  },
+  workImage: {
+    width: 120,
+    height: 90,
+    borderRadius: 8,
+    marginRight: 8,
+  },
+  imagesContainer: {
+    marginVertical: 12,
   },
 });
