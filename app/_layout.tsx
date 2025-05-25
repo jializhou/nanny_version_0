@@ -72,16 +72,6 @@ export default function RootLayout() {
             headerBackTitle: '',
             headerTintColor: Colors[colorScheme ?? 'light'].primary,
           }} />
-          <Stack.Screen name="profile/post-job" options={{ 
-            headerShown: true,
-            headerTitle: '发布招聘',
-            headerTintColor: Colors[colorScheme ?? 'light'].primary,
-          }} />
-          <Stack.Screen name="profile/find-work" options={{ 
-            headerShown: true,
-            headerTitle: '发布求职',
-            headerTintColor: Colors[colorScheme ?? 'light'].primary,
-          }} />
           <Stack.Screen name="+not-found" options={{ title: 'Oops!' }} />
         </Stack>
       </AuthProvider>
