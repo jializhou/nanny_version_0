@@ -127,9 +127,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Mock successful login
         const mockUser: User = {
           id: '1',
-          name: 'Sarah Johnson',
+          name: '张女士',
           email: email,
-          profileImage: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg',
+          profileImage: 'https://images.pexels.com/photos/3771836/pexels-photo-3771836.jpeg',
           userType: 'employer',
         };
         
@@ -163,7 +163,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           id: '1',
           name: name,
           email: email,
-          profileImage: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg',
+          profileImage: 'https://images.pexels.com/photos/3771836/pexels-photo-3771836.jpeg',
           userType: userType,
         };
         
