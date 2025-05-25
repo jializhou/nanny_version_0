@@ -19,7 +19,9 @@ import {
   Star, 
   LogOut, 
   CreditCard as Edit2, 
-  Shield
+  Shield,
+  Briefcase,
+  Search
 } from 'lucide-react-native';
 import { Link, useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
@@ -53,6 +55,14 @@ export default function ProfileScreen() {
     );
   };
 
+  const handlePostJob = () => {
+    router.push('/profile/post-job');
+  };
+
+  const handleFindWork = () => {
+    router.push('/profile/find-work');
+  };
+
   return (
     <ScrollView 
       style={[styles.container, { backgroundColor: colors.background }]}
@@ -79,6 +89,32 @@ export default function ProfileScreen() {
           style={[styles.editButton, { backgroundColor: colors.primary }]}
         >
           <Edit2 size={16} color="#fff" />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          招聘/求职
+        </Text>
+        
+        <TouchableOpacity 
+          style={[styles.menuItem, { backgroundColor: colors.card }]}
+          onPress={handlePostJob}
+        >
+          <Briefcase size={20} color={colors.primary} />
+          <Text style={[styles.menuText, { color: colors.text }]}>
+            招聘阿姨
+          </Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={[styles.menuItem, { backgroundColor: colors.card }]}
+          onPress={handleFindWork}
+        >
+          <Search size={20} color={colors.primary} />
+          <Text style={[styles.menuText, { color: colors.text }]}>
+            阿姨求职
+          </Text>
         </TouchableOpacity>
       </View>
 
