@@ -127,7 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Mock successful login
         const mockUser: User = {
           id: '1',
-          name: '张女士',
+          name: '王丽华',
           email: email,
           profileImage: 'https://images.pexels.com/photos/3771836/pexels-photo-3771836.jpeg',
           userType: 'employer',
