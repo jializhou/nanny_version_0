@@ -66,6 +66,7 @@ export default function RootLayout() {
         }}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="(auth)" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="(forms)" />
           <Stack.Screen name="caregiver/[id]" options={{ 
             headerShown: true,
             headerTitle: '',
