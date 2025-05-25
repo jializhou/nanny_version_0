@@ -57,10 +57,11 @@ export default function FilterModal({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   
-  // Date selection state
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
-  const [selectedDay, setSelectedDay] = useState(1);
+  // Date selection state with today's date as default
+  const today = new Date();
+  const [selectedYear, setSelectedYear] = useState(today.getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(today.getMonth() + 1);
+  const [selectedDay, setSelectedDay] = useState(today.getDate());
 
   useEffect(() => {
     if (visible) {
@@ -82,9 +83,10 @@ export default function FilterModal({
     setSalaryRange(DEFAULT_SALARY_RANGE);
     setSearchQuery('');
     setSelectedCity(null);
-    setSelectedYear(new Date().getFullYear());
-    setSelectedMonth(new Date().getMonth() + 1);
-    setSelectedDay(1);
+    const today = new Date();
+    setSelectedYear(today.getFullYear());
+    setSelectedMonth(today.getMonth() + 1);
+    setSelectedDay(today.getDate());
   };
   
   const handleApply = () => {
@@ -141,7 +143,12 @@ export default function FilterModal({
                     style={[styles.picker, { color: colors.text }]}
                   >
                     {generateYears().map((year) => (
-                      <Picker.Item key={year} label={`${year}年`} value={year} />
+                      <Picker.Item 
+                        key={year} 
+                        label={`${year}年`} 
+                        value={year}
+                        color={colors.text}
+                      />
                     ))}
                   </Picker>
                 </View>
@@ -152,7 +159,12 @@ export default function FilterModal({
                     style={[styles.picker, { color: colors.text }]}
                   >
                     {generateMonths().map((month) => (
-                      <Picker.Item key={month} label={`${month}月`} value={month} />
+                      <Picker.Item 
+                        key={month} 
+                        label={`${month}月`} 
+                        value={month}
+                        color={colors.text}
+                      />
                     ))}
                   </Picker>
                 </View>
@@ -163,7 +175,12 @@ export default function FilterModal({
                     style={[styles.picker, { color: colors.text }]}
                   >
                     {generateDays(selectedYear, selectedMonth).map((day) => (
-                      <Picker.Item key={day} label={`${day}日`} value={day} />
+                      <Picker.Item 
+                        key={day} 
+                        label={`${day}日`} 
+                        value={day}
+                        color={colors.text}
+                      />
                     ))}
                   </Picker>
                 </View>
@@ -477,5 +494,7 @@ const styles = StyleSheet.create({
   },
   picker: {
     height: 50,
+    fontFamily: 'Inter-Medium',
+    fontSize: 16,
   },
 });
