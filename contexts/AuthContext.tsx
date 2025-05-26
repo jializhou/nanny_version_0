@@ -2,7 +2,11 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { Alert } from 'react-native';
 import { useRouter, useSegments } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Session } from '@supabase/supabase-js';
+import { supabase } from '@/lib/supabase';
+import { Database } from '@/types/supabase';
+
+type Profile = Database['public']['Tables']['profiles']['Row'];
 
 // User type definition
 interface User {
@@ -17,20 +21,13 @@ interface User {
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, password: string) => void;
-  register: (name: string, email: string, password: string, userType: 'employer' | 'caregiver') => void;
-  logout: () => void;
+  login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string, userType: 'employer' | 'caregiver') => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 // Create the context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// Storage keys
-const USER_STORAGE_KEY = '@auth_user';
-const SESSION_TIMESTAMP_KEY = '@auth_session_timestamp';
-
-// Session duration in milliseconds (12 hours)
-const SESSION_DURATION = 12 * 60 * 60 * 1000;
 
 // List of routes that don't require authentication
 const publicRoutes = ['/', '/browse'];
@@ -49,58 +46,54 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return publicRoutes.includes(path);
   };
 
-  // Check if the session is still valid
-  const isSessionValid = async () => {
-    try {
-      const timestamp = await AsyncStorage.getItem(SESSION_TIMESTAMP_KEY);
-      if (!timestamp) return false;
-
-      const lastActivity = parseInt(timestamp, 10);
-      const now = Date.now();
-      return now - lastActivity < SESSION_DURATION;
-    } catch (error) {
-      console.error('Error checking session validity:', error);
-      return false;
-    }
-  };
-
-  // Update the session timestamp
-  const updateSessionTimestamp = async () => {
-    try {
-      await AsyncStorage.setItem(SESSION_TIMESTAMP_KEY, Date.now().toString());
-    } catch (error) {
-      console.error('Error updating session timestamp:', error);
-    }
-  };
-
-  // Load the persisted user data
+  // Load the user data
   useEffect(() => {
-    const loadUser = async () => {
-      try {
-        setIsLoading(true);
-        const sessionValid = await isSessionValid();
-        if (!sessionValid) {
-          await AsyncStorage.multiRemove([USER_STORAGE_KEY, SESSION_TIMESTAMP_KEY]);
-          setUser(null);
-          setIsLoading(false);
-          return;
-        }
-
-        const storedUser = await AsyncStorage.getItem(USER_STORAGE_KEY);
-        if (storedUser) {
-          setUser(JSON.parse(storedUser));
-          updateSessionTimestamp();
-        }
-      } catch (error) {
-        console.error('Error loading user data:', error);
-        setUser(null);
-      } finally {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        loadUserProfile(session);
+      } else {
         setIsLoading(false);
       }
-    };
+    });
 
-    loadUser();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        loadUserProfile(session);
+      } else {
+        setUser(null);
+        setIsLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  // Load user profile from Supabase
+  const loadUserProfile = async (session: Session) => {
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+
+      if (error) throw error;
+
+      if (profile) {
+        setUser({
+          id: profile.id,
+          name: profile.name,
+          email: profile.email,
+          profileImage: profile.profile_image || undefined,
+          userType: profile.user_type,
+        });
+      }
+    } catch (error) {
+      console.error('Error loading user profile:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Handle routing based on auth state
   useEffect(() => {
@@ -122,27 +115,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoading(true);
       
-      // Mock API call - In a real app, this would call your authentication API
-      setTimeout(async () => {
-        // Mock successful login
-        const mockUser: User = {
-          id: '1',
-          name: '王丽华',
-          email: email,
-          profileImage: 'https://images.pexels.com/photos/3771836/pexels-photo-3771836.jpeg',
-          userType: 'employer',
-        };
-        
-        // Store user data and session timestamp
-        await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(mockUser));
-        await updateSessionTimestamp();
-        
-        setUser(mockUser);
-        setIsLoading(false);
-      }, 1000);
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
     } catch (error) {
-      setIsLoading(false);
+      console.error('Error during login:', error);
       Alert.alert(t('auth.error'), t('auth.loginError'));
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -156,35 +139,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoading(true);
       
-      // Mock API call - In a real app, this would call your registration API
-      setTimeout(async () => {
-        // Mock successful registration and login
-        const mockUser: User = {
-          id: '1',
-          name: name,
-          email: email,
-          profileImage: 'https://images.pexels.com/photos/3771836/pexels-photo-3771836.jpeg',
-          userType: userType,
-        };
-        
-        // Store user data and session timestamp
-        await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(mockUser));
-        await updateSessionTimestamp();
-        
-        setUser(mockUser);
-        setIsLoading(false);
-      }, 1000);
+      const { data: { user: authUser }, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (signUpError) throw signUpError;
+      if (!authUser) throw new Error('No user returned after signup');
+
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: authUser.id,
+          name,
+          email,
+          user_type: userType,
+        });
+
+      if (profileError) throw profileError;
     } catch (error) {
-      setIsLoading(false);
+      console.error('Error during registration:', error);
       Alert.alert(t('auth.error'), t('auth.registerError'));
+    } finally {
+      setIsLoading(false);
     }
   };
 
   // Logout function
   const logout = async () => {
     try {
-      await AsyncStorage.multiRemove([USER_STORAGE_KEY, SESSION_TIMESTAMP_KEY]);
-      setUser(null);
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
     } catch (error) {
       console.error('Error during logout:', error);
     }
