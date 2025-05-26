@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from 'react-native';
@@ -40,16 +40,14 @@ export default function RootLayout() {
     'Poppins-Bold': Poppins_700Bold,
   });
 
-  const onLayoutRootView = useCallback(async () => {
+  useEffect(() => {
     if (fontsLoaded || fontError) {
-      await SplashScreen.hideAsync();
+      // Hide splash screen once fonts are loaded
+      SplashScreen.hideAsync();
     }
   }, [fontsLoaded, fontError]);
 
-  useEffect(() => {
-    onLayoutRootView();
-  }, [onLayoutRootView]);
-
+  // Return null to keep splash screen visible while fonts load
   if (!fontsLoaded && !fontError) {
     return null;
   }
