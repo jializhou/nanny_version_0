@@ -1,15 +1,15 @@
 /*
   # Initial Schema Setup
 
-  1. Tables
+  1. New Tables
     - profiles: User profiles with basic information
     - caregivers: Detailed caregiver information
-    - reviews: Caregiver reviews and ratings
+    - reviews: Caregiver reviews
     - messages: Communication between users
 
   2. Security
-    - RLS enabled on all tables
-    - Policies for public access, user-specific access, and data modification
+    - Enable RLS on all tables
+    - Add policies for data access control
 */
 
 -- Create profiles table
@@ -118,4 +118,5 @@ CREATE POLICY "Users can send messages"
 
 CREATE POLICY "Recipients can mark messages as read"
   ON messages FOR UPDATE
-  USING (auth.uid() = recipient_id AND read = true);
+  USING (auth.uid() = recipient_id)
+  WITH CHECK (read = true);
