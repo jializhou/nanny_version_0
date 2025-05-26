@@ -2,28 +2,40 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { Alert } from 'react-native';
 import { useRouter, useSegments } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '@/lib/supabase';
-import { Session } from '@supabase/supabase-js';
-import { Database } from '@/types/supabase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-type Profile = Database['public']['Tables']['profiles']['Row'];
-
-interface User extends Profile {
-  session: Session;
+// User type definition
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  profileImage?: string;
+  userType: 'employer' | 'caregiver';
 }
 
+// Auth context interface
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, userType: 'employer' | 'caregiver') => Promise<void>;
-  logout: () => Promise<void>;
+  login: (email: string, password: string) => void;
+  register: (name: string, email: string, password: string, userType: 'employer' | 'caregiver') => void;
+  logout: () => void;
 }
 
+// Create the context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Storage keys
+const USER_STORAGE_KEY = '@auth_user';
+const SESSION_TIMESTAMP_KEY = '@auth_session_timestamp';
+
+// Session duration in milliseconds (12 hours)
+const SESSION_DURATION = 12 * 60 * 60 * 1000;
+
+// List of routes that don't require authentication
 const publicRoutes = ['/', '/browse'];
 
+// Provider component
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -31,128 +43,147 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const segments = useSegments();
   const { t } = useTranslation();
 
+  // Check if the current route is public
   const isPublicRoute = () => {
     const path = '/' + segments.join('/');
     return publicRoutes.includes(path);
   };
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        loadUserProfile(session);
-      } else {
-        setIsLoading(false);
-      }
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        loadUserProfile(session);
-      } else {
-        setUser(null);
-        setIsLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const loadUserProfile = async (session: Session) => {
+  // Check if the session is still valid
+  const isSessionValid = async () => {
     try {
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .single();
+      const timestamp = await AsyncStorage.getItem(SESSION_TIMESTAMP_KEY);
+      if (!timestamp) return false;
 
-      if (error) throw error;
-
-      if (profile) {
-        setUser({ ...profile, session });
-      }
+      const lastActivity = parseInt(timestamp, 10);
+      const now = Date.now();
+      return now - lastActivity < SESSION_DURATION;
     } catch (error) {
-      console.error('Error loading user profile:', error);
-    } finally {
-      setIsLoading(false);
+      console.error('Error checking session validity:', error);
+      return false;
     }
   };
 
+  // Update the session timestamp
+  const updateSessionTimestamp = async () => {
+    try {
+      await AsyncStorage.setItem(SESSION_TIMESTAMP_KEY, Date.now().toString());
+    } catch (error) {
+      console.error('Error updating session timestamp:', error);
+    }
+  };
+
+  // Load the persisted user data
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        setIsLoading(true);
+        const sessionValid = await isSessionValid();
+        if (!sessionValid) {
+          await AsyncStorage.multiRemove([USER_STORAGE_KEY, SESSION_TIMESTAMP_KEY]);
+          setUser(null);
+          setIsLoading(false);
+          return;
+        }
+
+        const storedUser = await AsyncStorage.getItem(USER_STORAGE_KEY);
+        if (storedUser) {
+          setUser(JSON.parse(storedUser));
+          updateSessionTimestamp();
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error);
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadUser();
+  }, []);
+
+  // Handle routing based on auth state
   useEffect(() => {
     if (isLoading) return;
 
     const inAuthGroup = segments[0] === '(auth)';
 
     if (!user && !inAuthGroup && !isPublicRoute()) {
+      // Redirect to login if not authenticated and not on a public or auth route
       router.replace('/login');
     } else if (user && inAuthGroup) {
+      // Redirect to home if authenticated but still on an auth screen
       router.replace('/');
     }
   }, [user, segments, isLoading]);
 
+  // Login function
   const login = async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-
-      if (data.session) {
-        await loadUserProfile(data.session);
-      }
+      
+      // Mock API call - In a real app, this would call your authentication API
+      setTimeout(async () => {
+        // Mock successful login
+        const mockUser: User = {
+          id: '1',
+          name: '王丽华',
+          email: email,
+          profileImage: 'https://images.pexels.com/photos/3771836/pexels-photo-3771836.jpeg',
+          userType: 'employer',
+        };
+        
+        // Store user data and session timestamp
+        await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(mockUser));
+        await updateSessionTimestamp();
+        
+        setUser(mockUser);
+        setIsLoading(false);
+      }, 1000);
     } catch (error) {
-      console.error('Error logging in:', error);
-      Alert.alert(t('auth.error'), t('auth.loginError'));
-    } finally {
       setIsLoading(false);
+      Alert.alert(t('auth.error'), t('auth.loginError'));
     }
   };
 
+  // Register function
   const register = async (
-    name: string,
-    email: string,
-    password: string,
+    name: string, 
+    email: string, 
+    password: string, 
     userType: 'employer' | 'caregiver'
   ) => {
     try {
       setIsLoading(true);
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-
-      if (authError) throw authError;
-
-      if (authData.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: authData.user.id,
-            name,
-            email,
-            user_type: userType,
-          });
-
-        if (profileError) throw profileError;
-
-        if (authData.session) {
-          await loadUserProfile(authData.session);
-        }
-      }
+      
+      // Mock API call - In a real app, this would call your registration API
+      setTimeout(async () => {
+        // Mock successful registration and login
+        const mockUser: User = {
+          id: '1',
+          name: name,
+          email: email,
+          profileImage: 'https://images.pexels.com/photos/3771836/pexels-photo-3771836.jpeg',
+          userType: userType,
+        };
+        
+        // Store user data and session timestamp
+        await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(mockUser));
+        await updateSessionTimestamp();
+        
+        setUser(mockUser);
+        setIsLoading(false);
+      }, 1000);
     } catch (error) {
-      console.error('Error registering:', error);
-      Alert.alert(t('auth.error'), t('auth.registerError'));
-    } finally {
       setIsLoading(false);
+      Alert.alert(t('auth.error'), t('auth.registerError'));
     }
   };
 
+  // Logout function
   const logout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      await AsyncStorage.multiRemove([USER_STORAGE_KEY, SESSION_TIMESTAMP_KEY]);
       setUser(null);
     } catch (error) {
       console.error('Error during logout:', error);
@@ -166,6 +197,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// Custom hook to use the auth context
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
