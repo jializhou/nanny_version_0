@@ -7,11 +7,38 @@ const config = getDefaultConfig(__dirname, {
   isCSSEnabled: true,
 });
 
-// Add custom resolver options
+// Add custom resolver options with expanded extensions
 config.resolver = {
   ...config.resolver,
-  sourceExts: ['js', 'jsx', 'json', 'ts', 'tsx', 'cjs'],
-  assetExts: ['ttf', 'woff', 'woff2', 'eot', 'otf', 'png', 'jpg', 'jpeg', 'gif', 'mp4', 'mov', 'webp', 'pdf']
+  sourceExts: [
+    'js',
+    'jsx',
+    'json',
+    'ts',
+    'tsx',
+    'cjs',
+    'd.ts',
+    'web.js',
+    'web.jsx',
+    'web.ts',
+    'web.tsx'
+  ],
+  assetExts: [
+    'ttf',
+    'woff',
+    'woff2',
+    'eot',
+    'otf',
+    'png',
+    'jpg',
+    'jpeg',
+    'gif',
+    'mp4',
+    'mov',
+    'webp',
+    'pdf'
+  ],
+  platforms: ['web', 'ios', 'android']
 };
 
 module.exports = config;
