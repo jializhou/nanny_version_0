@@ -6,11 +6,13 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
-  Platform
+  Platform,
+  Switch
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'react-native';
 import { Link, useRouter } from 'expo-router';
+import { Briefcase, Search, User, Settings, Shield, Heart, Star, LogOut } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
 import LanguageToggle from '@/components/LanguageToggle';
@@ -21,9 +23,22 @@ export default function ProfileScreen() {
   const colors = Colors[colorScheme ?? 'light'];
   const { user } = useAuth();
   const router = useRouter();
+  const [notifications, setNotifications] = useState(false);
 
   const handleLogin = () => {
     router.push('/login');
+  };
+
+  const handleLogout = () => {
+    // Implement logout logic
+  };
+
+  const handlePostJob = () => {
+    router.push('/(forms)/post-job');
+  };
+
+  const handleFindWork = () => {
+    router.push('/(forms)/find-work');
   };
 
   if (!user) {
@@ -302,6 +317,38 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Inter-Regular',
   },
+  section: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontFamily: 'Poppins-SemiBold',
+    marginBottom: 16,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  menuItemSwitch: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  menuItemLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  menuText: {
+    fontSize: 16,
+    fontFamily: 'Inter-Medium',
+    marginLeft: 12,
+  },
   languageSection: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -312,6 +359,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Inter-Medium',
     marginRight: 12,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginBottom: 24,
+  },
+  logoutText: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    marginLeft: 8,
   },
   version: {
     textAlign: 'center',
