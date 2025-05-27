@@ -89,6 +89,8 @@ export default {
 
   // Profile
   profile: {
+    welcome: 'Welcome to Our App',
+    guestMessage: 'Sign in to access your profile and manage your account',
     account: 'Account',
     personalInfo: 'Personal Information',
     preferences: 'Preferences',

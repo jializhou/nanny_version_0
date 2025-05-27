@@ -89,6 +89,8 @@ export default {
 
   // Profile
   profile: {
+    welcome: '欢迎使用',
+    guestMessage: '登录以访问您的个人资料和管理账户',
     account: '账户',
     personalInfo: '个人信息',
     preferences: '偏好设置',

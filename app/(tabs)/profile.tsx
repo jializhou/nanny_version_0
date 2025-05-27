@@ -6,23 +6,10 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
-  Switch,
-  Alert,
   Platform
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'react-native';
-import { 
-  User, 
-  Settings, 
-  Heart, 
-  Star, 
-  LogOut, 
-  CreditCard as Edit2, 
-  Shield,
-  Briefcase,
-  Search
-} from 'lucide-react-native';
 import { Link, useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
@@ -32,36 +19,66 @@ export default function ProfileScreen() {
   const colorScheme = useColorScheme();
   const { t } = useTranslation();
   const colors = Colors[colorScheme ?? 'light'];
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
-  
-  const [notifications, setNotifications] = useState(true);
-  
-  const handleLogout = () => {
-    Alert.alert(
-      t('profile.logoutTitle'),
-      t('profile.logoutMessage'),
-      [
-        {
-          text: t('common.cancel'),
-          style: 'cancel',
-        },
-        {
-          text: t('common.logout'),
-          onPress: () => logout(),
-          style: 'destructive',
-        },
-      ]
+
+  const handleLogin = () => {
+    router.push('/login');
+  };
+
+  if (!user) {
+    return (
+      <ScrollView 
+        style={[styles.container, { backgroundColor: colors.background }]}
+        contentContainerStyle={styles.guestContent}
+      >
+        <View style={styles.guestHeader}>
+          <Image 
+            source={{ uri: 'https://images.pexels.com/photos/3771836/pexels-photo-3771836.jpeg' }}
+            style={styles.guestAvatar}
+          />
+          <Text style={[styles.guestTitle, { color: colors.text }]}>
+            {t('profile.welcome')}
+          </Text>
+          <Text style={[styles.guestSubtitle, { color: colors.textDim }]}>
+            {t('profile.guestMessage')}
+          </Text>
+        </View>
+
+        <View style={styles.guestActions}>
+          <TouchableOpacity
+            style={[styles.loginButton, { backgroundColor: colors.primary }]}
+            onPress={handleLogin}
+          >
+            <Text style={styles.loginButtonText}>
+              {t('auth.login')}
+            </Text>
+          </TouchableOpacity>
+
+          <Link href="/register" asChild>
+            <TouchableOpacity
+              style={[styles.registerButton, { borderColor: colors.primary }]}
+            >
+              <Text style={[styles.registerButtonText, { color: colors.primary }]}>
+                {t('auth.register')}
+              </Text>
+            </TouchableOpacity>
+          </Link>
+        </View>
+
+        <View style={styles.languageSection}>
+          <Text style={[styles.languageLabel, { color: colors.text }]}>
+            {t('profile.language')}:
+          </Text>
+          <LanguageToggle />
+        </View>
+
+        <Text style={[styles.version, { color: colors.textDim }]}>
+          {t('profile.version')} 1.0.0
+        </Text>
+      </ScrollView>
     );
-  };
-
-  const handlePostJob = () => {
-    router.push('/(forms)/post-job');
-  };
-
-  const handleFindWork = () => {
-    router.push('/(forms)/find-work');
-  };
+  }
 
   return (
     <ScrollView 
@@ -72,24 +89,19 @@ export default function ProfileScreen() {
         <View style={styles.profileSection}>
           <Image 
             source={{ 
-              uri: user?.profileImage || 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg' 
+              uri: user.profileImage || 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg' 
             }} 
             style={styles.profileImage} 
           />
           <View style={styles.profileInfo}>
             <Text style={[styles.name, { color: colors.text }]}>
-              {user?.name || '游客'}
+              {user.name}
             </Text>
             <Text style={[styles.email, { color: colors.textDim }]}>
-              {user?.email || '未登录'}
+              {user.email}
             </Text>
           </View>
         </View>
-        <TouchableOpacity 
-          style={[styles.editButton, { backgroundColor: colors.primary }]}
-        >
-          <Edit2 size={16} color="#fff" />
-        </TouchableOpacity>
       </View>
 
       <View style={styles.section}>
@@ -206,6 +218,62 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 40,
   },
+  guestContent: {
+    padding: 16,
+    paddingBottom: 40,
+    alignItems: 'center',
+  },
+  guestHeader: {
+    alignItems: 'center',
+    marginTop: 40,
+    marginBottom: 40,
+  },
+  guestAvatar: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    marginBottom: 24,
+  },
+  guestTitle: {
+    fontSize: 24,
+    fontFamily: 'Poppins-Bold',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  guestSubtitle: {
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    textAlign: 'center',
+    paddingHorizontal: 32,
+  },
+  guestActions: {
+    width: '100%',
+    paddingHorizontal: 32,
+    marginBottom: 40,
+  },
+  loginButton: {
+    width: '100%',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  loginButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+  },
+  registerButton: {
+    width: '100%',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    borderWidth: 1,
+  },
+  registerButtonText: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -234,68 +302,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Inter-Regular',
   },
-  editButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontFamily: 'Poppins-SemiBold',
-    marginBottom: 12,
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 8,
-  },
-  menuItemSwitch: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 8,
-  },
-  menuItemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  menuText: {
-    marginLeft: 12,
-    fontSize: 16,
-    fontFamily: 'Inter-Medium',
-  },
   languageSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     marginBottom: 32,
   },
   languageLabel: {
     fontSize: 16,
     fontFamily: 'Inter-Medium',
-  },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    marginBottom: 24,
-  },
-  logoutText: {
-    marginLeft: 8,
-    fontSize: 16,
-    fontFamily: 'Inter-Medium',
+    marginRight: 12,
   },
   version: {
     textAlign: 'center',
