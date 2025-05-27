@@ -8,6 +8,7 @@ declare global {
 
 export function useFrameworkReady() {
   useEffect(() => {
+    // Only access window when in browser environment
     if (typeof window !== 'undefined') {
       window.frameworkReady?.();
     }
