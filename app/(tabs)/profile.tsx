@@ -32,10 +32,11 @@ export default function ProfileScreen() {
     router.push('/login');
   };
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     console.log('Logout button clicked');
+    
+    // 防止重复点击
     if (isLoggingOut) {
-      console.log('Already logging out, returning');
       return;
     }
 
@@ -46,30 +47,44 @@ export default function ProfileScreen() {
         {
           text: '取消',
           style: 'cancel',
-          onPress: () => console.log('Logout cancelled'),
         },
         {
           text: '确定',
-          onPress: async () => {
-            console.log('Starting logout process');
-            setIsLoggingOut(true);
-            try {
-              console.log('Calling logout function');
-              const success = await logout();
-              console.log('Logout result:', success);
-              if (!success) {
-                console.log('Logout failed');
-                Alert.alert('退出失败', '请稍后重试');
-              }
-            } catch (error) {
-              console.error('Logout error:', error);
-              Alert.alert('退出失败', '请稍后重试');
-            } finally {
-              console.log('Resetting isLoggingOut state');
-              setIsLoggingOut(false);
-            }
-          },
           style: 'destructive',
+          onPress: () => {
+            setIsLoggingOut(true);
+            
+            // 显示加载状态
+            Alert.alert(
+              '正在退出',
+              '请稍候...',
+              [],
+              { cancelable: false }
+            );
+
+            // 执行退出操作
+            setTimeout(async () => {
+              try {
+                await logout();
+                console.log('Logout successful');
+                
+                // 清除本地存储
+                await AsyncStorage.clear();
+                
+                // 强制重定向到登录页面
+                router.replace('/(auth)/login');
+              } catch (error) {
+                console.error('Logout error:', error);
+                Alert.alert(
+                  '退出失败',
+                  '请检查网络连接后重试',
+                  [{ text: '确定' }]
+                );
+              } finally {
+                setIsLoggingOut(false);
+              }
+            }, 500); // 添加小延迟以确保用户看到加载状态
+          },
         },
       ],
       { cancelable: true }
@@ -82,6 +97,14 @@ export default function ProfileScreen() {
 
   const handleFindWork = () => {
     router.push('/(forms)/find-work');
+  };
+
+  const handleFavorites = () => {
+    router.push('/(user)/favorites');
+  };
+
+  const handleReviews = () => {
+    router.push('/(user)/reviews');
   };
 
   if (!user) {
@@ -223,19 +246,25 @@ export default function ProfileScreen() {
           </Text>
         </TouchableOpacity>
 
-        <View style={{ ...styles.menuItem, backgroundColor: colors.card }}>
+        <TouchableOpacity 
+          style={{ ...styles.menuItem, backgroundColor: colors.card }}
+          onPress={handleFavorites}
+        >
           <Heart size={20} color={colors.accent} />
           <Text style={{ ...styles.menuText, color: colors.text }}>
             {t('profile.favorites')}
           </Text>
-        </View>
+        </TouchableOpacity>
         
-        <View style={{ ...styles.menuItem, backgroundColor: colors.card }}>
+        <TouchableOpacity 
+          style={{ ...styles.menuItem, backgroundColor: colors.card }}
+          onPress={handleReviews}
+        >
           <Star size={20} color="#FFD700" />
           <Text style={{ ...styles.menuText, color: colors.text }}>
             {t('profile.reviews')}
           </Text>
-        </View>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.languageSection}>
