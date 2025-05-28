@@ -17,6 +17,7 @@ import { Briefcase, Search, User, Settings, Shield, Heart, Star, LogOut } from '
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
 import LanguageToggle from '@/components/LanguageToggle';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ProfileScreen() {
   const colorScheme = useColorScheme();
@@ -25,12 +26,15 @@ export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const router = useRouter();
   const [notifications, setNotifications] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogin = () => {
     router.push('/login');
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    if (isLoggingOut) return; // Prevent multiple clicks
+
     Alert.alert(
       '退出登录',
       '确定要退出登录吗？',
@@ -41,7 +45,17 @@ export default function ProfileScreen() {
         },
         {
           text: '确定',
-          onPress: () => logout(),
+          onPress: async () => {
+            try {
+              setIsLoggingOut(true);
+              await logout();
+            } catch (error) {
+              console.error('Logout error:', error);
+              Alert.alert('退出失败', '请稍后重试');
+            } finally {
+              setIsLoggingOut(false);
+            }
+          },
           style: 'destructive',
         },
       ],
@@ -219,12 +233,19 @@ export default function ProfileScreen() {
       </View>
 
       <TouchableOpacity 
-        style={[styles.logoutButton, { borderColor: colors.error }]}
+        style={[
+          styles.logoutButton, 
+          { 
+            borderColor: colors.error,
+            opacity: isLoggingOut ? 0.5 : 1 
+          }
+        ]}
         onPress={handleLogout}
+        disabled={isLoggingOut}
       >
         <LogOut size={20} color={colors.error} />
         <Text style={[styles.logoutText, { color: colors.error }]}>
-          {t('profile.logout')}
+          {isLoggingOut ? '退出中...' : t('profile.logout')}
         </Text>
       </TouchableOpacity>
 

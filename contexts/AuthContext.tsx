@@ -8,16 +8,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 interface User {
   id: string;
   name: string;
-  email: string;
+  phone?: string;
+  email?: string;
   profileImage?: string;
-  userType: 'employer' | 'caregiver';
+  userType?: 'employer' | 'caregiver';
 }
 
 // Auth context interface
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, password: string) => void;
+  login: (token: string, user: User) => void;
   register: (name: string, email: string, password: string, userType: 'employer' | 'caregiver') => void;
   logout: () => void;
 }
@@ -27,6 +28,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Storage keys
 const USER_STORAGE_KEY = '@auth_user';
+const TOKEN_STORAGE_KEY = '@auth_token';
 const SESSION_TIMESTAMP_KEY = '@auth_session_timestamp';
 
 // Session duration in milliseconds (12 hours)
@@ -80,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoading(true);
         const sessionValid = await isSessionValid();
         if (!sessionValid) {
-          await AsyncStorage.multiRemove([USER_STORAGE_KEY, SESSION_TIMESTAMP_KEY]);
+          await AsyncStorage.multiRemove([USER_STORAGE_KEY, TOKEN_STORAGE_KEY, SESSION_TIMESTAMP_KEY]);
           setUser(null);
           setIsLoading(false);
           return;
@@ -113,36 +115,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       router.replace('/login');
     } else if (user && inAuthGroup) {
       // Redirect to home if authenticated but still on an auth screen
-      router.replace('/');
+      router.replace('/(tabs)');
     }
   }, [user, segments, isLoading]);
 
   // Login function
-  const login = async (email: string, password: string) => {
+  const login = async (token: string, userData: User) => {
     try {
-      setIsLoading(true);
+      // Store user data, token and session timestamp
+      await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
+      await AsyncStorage.setItem(TOKEN_STORAGE_KEY, token);
+      await updateSessionTimestamp();
       
-      // Mock API call - In a real app, this would call your authentication API
-      setTimeout(async () => {
-        // Mock successful login
-        const mockUser: User = {
-          id: '1',
-          name: '王丽华',
-          email: email,
-          profileImage: 'https://images.pexels.com/photos/3771836/pexels-photo-3771836.jpeg',
-          userType: 'employer',
-        };
-        
-        // Store user data and session timestamp
-        await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(mockUser));
-        await updateSessionTimestamp();
-        
-        setUser(mockUser);
-        setIsLoading(false);
-      }, 1000);
+      setUser(userData);
     } catch (error) {
-      setIsLoading(false);
-      Alert.alert(t('auth.error'), t('auth.loginError'));
+      console.error('Error during login:', error);
+      Alert.alert('登录失败', '请稍后重试');
     }
   };
 
@@ -167,11 +155,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           userType: userType,
         };
         
-        // Store user data and session timestamp
-        await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(mockUser));
-        await updateSessionTimestamp();
+        const mockToken = 'mock_token_' + Date.now();
         
-        setUser(mockUser);
+        // Store user data and session timestamp
+        await login(mockToken, mockUser);
         setIsLoading(false);
       }, 1000);
     } catch (error) {
@@ -183,10 +170,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Logout function
   const logout = async () => {
     try {
-      await AsyncStorage.multiRemove([USER_STORAGE_KEY, SESSION_TIMESTAMP_KEY]);
+      // First clear all storage
+      await AsyncStorage.multiRemove([USER_STORAGE_KEY, TOKEN_STORAGE_KEY, SESSION_TIMESTAMP_KEY]);
+      
+      // Then clear the user state
       setUser(null);
+      
+      // Finally navigate to login
+      router.replace('/(auth)/login');
     } catch (error) {
       console.error('Error during logout:', error);
+      Alert.alert('退出失败', '请稍后重试');
     }
   };
 
