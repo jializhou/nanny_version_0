@@ -35,7 +35,7 @@ const SESSION_TIMESTAMP_KEY = '@auth_session_timestamp';
 const SESSION_DURATION = 12 * 60 * 60 * 1000;
 
 // List of routes that don't require authentication
-const publicRoutes = ['/', '/browse'];
+const publicRoutes = ['/', '/browse', '/login', '/register'];
 
 // Provider component
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -169,18 +169,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Logout function
   const logout = async () => {
+    console.log('AuthContext: Starting logout process');
     try {
-      // First clear all storage
-      await AsyncStorage.multiRemove([USER_STORAGE_KEY, TOKEN_STORAGE_KEY, SESSION_TIMESTAMP_KEY]);
-      
-      // Then clear the user state
+      // 先清除用户状态，这样会触发路由保护
       setUser(null);
-      
-      // Finally navigate to login
+      console.log('AuthContext: User state cleared');
+
+      // 清除存储
+      await AsyncStorage.multiRemove([
+        USER_STORAGE_KEY,
+        TOKEN_STORAGE_KEY,
+        SESSION_TIMESTAMP_KEY
+      ]);
+      console.log('AuthContext: Storage cleared');
+
+      // 使用 replace 进行导航
       router.replace('/(auth)/login');
+      console.log('AuthContext: Navigation completed');
+      
+      return true;
     } catch (error) {
-      console.error('Error during logout:', error);
-      Alert.alert('退出失败', '请稍后重试');
+      console.error('AuthContext: Logout error:', error);
+      // 重新设置用户状态，因为清除失败
+      const storedUser = await AsyncStorage.getItem(USER_STORAGE_KEY);
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+      return false;
     }
   };
 

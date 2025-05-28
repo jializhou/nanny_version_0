@@ -33,7 +33,11 @@ export default function ProfileScreen() {
   };
 
   const handleLogout = async () => {
-    if (isLoggingOut) return; // Prevent multiple clicks
+    console.log('Logout button clicked');
+    if (isLoggingOut) {
+      console.log('Already logging out, returning');
+      return;
+    }
 
     Alert.alert(
       '退出登录',
@@ -42,17 +46,26 @@ export default function ProfileScreen() {
         {
           text: '取消',
           style: 'cancel',
+          onPress: () => console.log('Logout cancelled'),
         },
         {
           text: '确定',
           onPress: async () => {
+            console.log('Starting logout process');
+            setIsLoggingOut(true);
             try {
-              setIsLoggingOut(true);
-              await logout();
+              console.log('Calling logout function');
+              const success = await logout();
+              console.log('Logout result:', success);
+              if (!success) {
+                console.log('Logout failed');
+                Alert.alert('退出失败', '请稍后重试');
+              }
             } catch (error) {
               console.error('Logout error:', error);
               Alert.alert('退出失败', '请稍后重试');
             } finally {
+              console.log('Resetting isLoggingOut state');
               setIsLoggingOut(false);
             }
           },
@@ -74,7 +87,7 @@ export default function ProfileScreen() {
   if (!user) {
     return (
       <ScrollView 
-        style={[styles.container, { backgroundColor: colors.background }]}
+        style={{ ...styles.container, backgroundColor: colors.background }}
         contentContainerStyle={styles.guestContent}
       >
         <View style={styles.guestHeader}>
@@ -82,17 +95,17 @@ export default function ProfileScreen() {
             source={{ uri: 'https://images.pexels.com/photos/3771836/pexels-photo-3771836.jpeg' }}
             style={styles.guestAvatar}
           />
-          <Text style={[styles.guestTitle, { color: colors.text }]}>
+          <Text style={{ ...styles.guestTitle, color: colors.text }}>
             {t('profile.welcome')}
           </Text>
-          <Text style={[styles.guestSubtitle, { color: colors.textDim }]}>
+          <Text style={{ ...styles.guestSubtitle, color: colors.textDim }}>
             {t('profile.guestMessage')}
           </Text>
         </View>
 
         <View style={styles.guestActions}>
           <TouchableOpacity
-            style={[styles.loginButton, { backgroundColor: colors.primary }]}
+            style={{ ...styles.loginButton, backgroundColor: colors.primary }}
             onPress={handleLogin}
           >
             <Text style={styles.loginButtonText}>
@@ -102,9 +115,9 @@ export default function ProfileScreen() {
 
           <Link href="/register" asChild>
             <TouchableOpacity
-              style={[styles.registerButton, { borderColor: colors.primary }]}
+              style={{ ...styles.registerButton, borderColor: colors.primary }}
             >
-              <Text style={[styles.registerButtonText, { color: colors.primary }]}>
+              <Text style={{ ...styles.registerButtonText, color: colors.primary }}>
                 {t('auth.register')}
               </Text>
             </TouchableOpacity>
@@ -112,13 +125,13 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.languageSection}>
-          <Text style={[styles.languageLabel, { color: colors.text }]}>
+          <Text style={{ ...styles.languageLabel, color: colors.text }}>
             {t('profile.language')}:
           </Text>
           <LanguageToggle />
         </View>
 
-        <Text style={[styles.version, { color: colors.textDim }]}>
+        <Text style={{ ...styles.version, color: colors.textDim }}>
           {t('profile.version')} 1.0.0
         </Text>
       </ScrollView>
@@ -127,7 +140,7 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView 
-      style={[styles.container, { backgroundColor: colors.background }]}
+      style={{ ...styles.container, backgroundColor: colors.background }}
       contentContainerStyle={styles.content}
     >
       <View style={styles.header}>
@@ -139,10 +152,10 @@ export default function ProfileScreen() {
             style={styles.profileImage} 
           />
           <View style={styles.profileInfo}>
-            <Text style={[styles.name, { color: colors.text }]}>
+            <Text style={{ ...styles.name, color: colors.text }}>
               {user.name}
             </Text>
-            <Text style={[styles.email, { color: colors.textDim }]}>
+            <Text style={{ ...styles.email, color: colors.textDim }}>
               {user.email}
             </Text>
           </View>
@@ -150,28 +163,28 @@ export default function ProfileScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+        <Text style={{ ...styles.sectionTitle, color: colors.text }}>
           {t('profile.account')}
         </Text>
         
-        <View style={[styles.menuItem, { backgroundColor: colors.card }]}>
+        <View style={{ ...styles.menuItem, backgroundColor: colors.card }}>
           <User size={20} color={colors.primary} />
-          <Text style={[styles.menuText, { color: colors.text }]}>
+          <Text style={{ ...styles.menuText, color: colors.text }}>
             {t('profile.personalInfo')}
           </Text>
         </View>
         
-        <View style={[styles.menuItem, { backgroundColor: colors.card }]}>
+        <View style={{ ...styles.menuItem, backgroundColor: colors.card }}>
           <Settings size={20} color={colors.primary} />
-          <Text style={[styles.menuText, { color: colors.text }]}>
+          <Text style={{ ...styles.menuText, color: colors.text }}>
             {t('profile.preferences')}
           </Text>
         </View>
         
-        <View style={[styles.menuItemSwitch, { backgroundColor: colors.card }]}>
+        <View style={{ ...styles.menuItemSwitch, backgroundColor: colors.card }}>
           <View style={styles.menuItemLeft}>
             <Shield size={20} color={colors.primary} />
-            <Text style={[styles.menuText, { color: colors.text }]}>
+            <Text style={{ ...styles.menuText, color: colors.text }}>
               {t('profile.notifications')}
             </Text>
           </View>
@@ -186,70 +199,68 @@ export default function ProfileScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+        <Text style={{ ...styles.sectionTitle, color: colors.text }}>
           {t('profile.activity')}
         </Text>
 
         <TouchableOpacity 
-          style={[styles.menuItem, { backgroundColor: colors.card }]}
+          style={{ ...styles.menuItem, backgroundColor: colors.card }}
           onPress={handlePostJob}
         >
           <Briefcase size={20} color={colors.primary} />
-          <Text style={[styles.menuText, { color: colors.text }]}>
+          <Text style={{ ...styles.menuText, color: colors.text }}>
             招聘阿姨
           </Text>
         </TouchableOpacity>
         
         <TouchableOpacity 
-          style={[styles.menuItem, { backgroundColor: colors.card }]}
+          style={{ ...styles.menuItem, backgroundColor: colors.card }}
           onPress={handleFindWork}
         >
           <Search size={20} color={colors.primary} />
-          <Text style={[styles.menuText, { color: colors.text }]}>
+          <Text style={{ ...styles.menuText, color: colors.text }}>
             阿姨求职
           </Text>
         </TouchableOpacity>
 
-        <View style={[styles.menuItem, { backgroundColor: colors.card }]}>
+        <View style={{ ...styles.menuItem, backgroundColor: colors.card }}>
           <Heart size={20} color={colors.accent} />
-          <Text style={[styles.menuText, { color: colors.text }]}>
+          <Text style={{ ...styles.menuText, color: colors.text }}>
             {t('profile.favorites')}
           </Text>
         </View>
         
-        <View style={[styles.menuItem, { backgroundColor: colors.card }]}>
+        <View style={{ ...styles.menuItem, backgroundColor: colors.card }}>
           <Star size={20} color="#FFD700" />
-          <Text style={[styles.menuText, { color: colors.text }]}>
+          <Text style={{ ...styles.menuText, color: colors.text }}>
             {t('profile.reviews')}
           </Text>
         </View>
       </View>
 
       <View style={styles.languageSection}>
-        <Text style={[styles.languageLabel, { color: colors.text }]}>
+        <Text style={{ ...styles.languageLabel, color: colors.text }}>
           {t('profile.language')}:
         </Text>
         <LanguageToggle />
       </View>
 
       <TouchableOpacity 
-        style={[
-          styles.logoutButton, 
-          { 
-            borderColor: colors.error,
-            opacity: isLoggingOut ? 0.5 : 1 
-          }
-        ]}
+        style={{ 
+          ...styles.logoutButton, 
+          borderColor: colors.error,
+          opacity: isLoggingOut ? 0.5 : 1 
+        }}
         onPress={handleLogout}
         disabled={isLoggingOut}
       >
         <LogOut size={20} color={colors.error} />
-        <Text style={[styles.logoutText, { color: colors.error }]}>
+        <Text style={{ ...styles.logoutText, color: colors.error }}>
           {isLoggingOut ? '退出中...' : t('profile.logout')}
         </Text>
       </TouchableOpacity>
 
-      <Text style={[styles.version, { color: colors.textDim }]}>
+      <Text style={{ ...styles.version, color: colors.textDim }}>
         {t('profile.version')} 1.0.0
       </Text>
     </ScrollView>
