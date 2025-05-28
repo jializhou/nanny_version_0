@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   ScrollView,
   Platform,
-  Switch
+  Switch,
+  Alert
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'react-native';
@@ -21,7 +22,7 @@ export default function ProfileScreen() {
   const colorScheme = useColorScheme();
   const { t } = useTranslation();
   const colors = Colors[colorScheme ?? 'light'];
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const router = useRouter();
   const [notifications, setNotifications] = useState(false);
 
@@ -30,7 +31,22 @@ export default function ProfileScreen() {
   };
 
   const handleLogout = () => {
-    // Implement logout logic
+    Alert.alert(
+      '退出登录',
+      '确定要退出登录吗？',
+      [
+        {
+          text: '取消',
+          style: 'cancel',
+        },
+        {
+          text: '确定',
+          onPress: () => logout(),
+          style: 'destructive',
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   const handlePostJob = () => {
@@ -121,32 +137,6 @@ export default function ProfileScreen() {
 
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
-          招聘/求职
-        </Text>
-        
-        <TouchableOpacity 
-          style={[styles.menuItem, { backgroundColor: colors.card }]}
-          onPress={handlePostJob}
-        >
-          <Briefcase size={20} color={colors.primary} />
-          <Text style={[styles.menuText, { color: colors.text }]}>
-            招聘阿姨
-          </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={[styles.menuItem, { backgroundColor: colors.card }]}
-          onPress={handleFindWork}
-        >
-          <Search size={20} color={colors.primary} />
-          <Text style={[styles.menuText, { color: colors.text }]}>
-            阿姨求职
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>
           {t('profile.account')}
         </Text>
         
@@ -185,7 +175,27 @@ export default function ProfileScreen() {
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
           {t('profile.activity')}
         </Text>
+
+        <TouchableOpacity 
+          style={[styles.menuItem, { backgroundColor: colors.card }]}
+          onPress={handlePostJob}
+        >
+          <Briefcase size={20} color={colors.primary} />
+          <Text style={[styles.menuText, { color: colors.text }]}>
+            招聘阿姨
+          </Text>
+        </TouchableOpacity>
         
+        <TouchableOpacity 
+          style={[styles.menuItem, { backgroundColor: colors.card }]}
+          onPress={handleFindWork}
+        >
+          <Search size={20} color={colors.primary} />
+          <Text style={[styles.menuText, { color: colors.text }]}>
+            阿姨求职
+          </Text>
+        </TouchableOpacity>
+
         <View style={[styles.menuItem, { backgroundColor: colors.card }]}>
           <Heart size={20} color={colors.accent} />
           <Text style={[styles.menuText, { color: colors.text }]}>
