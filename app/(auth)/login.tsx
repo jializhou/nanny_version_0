@@ -13,12 +13,13 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'react-native';
-import { Phone, Lock, Eye, EyeOff } from 'lucide-react-native';
+import { Phone, Lock, Eye, EyeOff, MessageSquare } from 'lucide-react-native';
 import { Link, useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
 import LanguageToggle from '@/components/LanguageToggle';
 import { sendVerificationCode, verifyCodeAndLogin, loginWithWechat } from '@/services/auth';
+import WechatLogin from '@/components/WechatLogin';
 
 export default function LoginScreen() {
   const colorScheme = useColorScheme();
@@ -35,6 +36,7 @@ export default function LoginScreen() {
   const [isCodeSent, setIsCodeSent] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [showWechatLogin, setShowWechatLogin] = useState(false);
 
   const validateForm = () => {
     let isValid = true;
@@ -108,23 +110,14 @@ export default function LoginScreen() {
     }
   };
 
-  const handleWechatLogin = async () => {
-    setIsLoading(true);
-    try {
-      const response = await loginWithWechat();
-      if (response) {
-        // 登录成功，更新认证状态
-        login(response.token, response.user);
-        // 导航到主页
-        router.replace('/(tabs)');
-      } else {
-        Alert.alert('微信登录', '微信登录功能开发中');
-      }
-    } catch (error) {
-      Alert.alert('登录失败', '请稍后重试');
-    } finally {
-      setIsLoading(false);
-    }
+  const handleWechatLogin = () => {
+    setShowWechatLogin(true);
+  };
+
+  const handleWechatLoginSuccess = (token: string, user: any) => {
+    setShowWechatLogin(false);
+    login(token, user);
+    router.replace('/(tabs)');
   };
 
   return (
@@ -235,14 +228,23 @@ export default function LoginScreen() {
             <View style={[styles.dividerLine, { backgroundColor: colors.textDim }]} />
           </View>
 
-          <TouchableOpacity
-            style={[styles.wechatButton, { backgroundColor: '#07C160' }]}
-            onPress={handleWechatLogin}
-          >
-            <Text style={styles.wechatButtonText}>
-              微信登录
-            </Text>
-          </TouchableOpacity>
+          <View style={styles.socialLogin}>
+            <TouchableOpacity
+              style={[styles.wechatButton, { backgroundColor: '#07C160' }]}
+              onPress={handleWechatLogin}
+            >
+              <MessageSquare size={24} color="white" style={styles.wechatIcon} />
+              <Text style={styles.wechatButtonText}>
+                微信登录
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <WechatLogin
+            visible={showWechatLogin}
+            onClose={() => setShowWechatLogin(false)}
+            onLoginSuccess={handleWechatLoginSuccess}
+          />
 
           <View style={styles.registerContainer}>
             <Text style={[styles.registerText, { color: colors.textDim }]}>
@@ -416,5 +418,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 12,
     fontFamily: 'Inter-Regular',
+  },
+  socialLogin: {
+    marginBottom: 24,
+  },
+  wechatIcon: {
+    width: 24,
+    height: 24,
+    marginRight: 12,
   },
 });

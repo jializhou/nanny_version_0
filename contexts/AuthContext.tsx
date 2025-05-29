@@ -108,13 +108,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (isLoading) return;
 
+    console.log('[AuthContext] Auth state changed:', { user, segments });
     const inAuthGroup = segments[0] === '(auth)';
 
     if (!user && !inAuthGroup && !isPublicRoute()) {
-      // Redirect to login if not authenticated and not on a public or auth route
-      router.replace('/login');
+      console.log('[AuthContext] Redirecting to login');
+      router.replace('/(auth)/login');
     } else if (user && inAuthGroup) {
-      // Redirect to home if authenticated but still on an auth screen
+      console.log('[AuthContext] Redirecting to tabs');
       router.replace('/(tabs)');
     }
   }, [user, segments, isLoading]);
@@ -170,20 +171,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Logout function
   const logout = async () => {
     try {
+      console.log('[AuthContext] Starting logout process');
+      
+      // 先清除用户状态
+      console.log('[AuthContext] Clearing user state');
+      setUser(null);
+      
       // 清除存储
+      console.log('[AuthContext] Clearing storage');
       await AsyncStorage.multiRemove([
         USER_STORAGE_KEY,
         TOKEN_STORAGE_KEY,
         SESSION_TIMESTAMP_KEY
       ]);
-
-      // 清除用户状态
-      setUser(null);
       
+      // 清除完成后重定向到首页
+      console.log('[AuthContext] Redirecting to home');
+      router.push('/(auth)/login');
+      
+      console.log('[AuthContext] Logout completed');
       return true;
     } catch (error) {
-      console.error('Logout error:', error);
-      throw error; // 抛出错误让调用者处理
+      console.error('[AuthContext] Logout error:', error);
+      Alert.alert(
+        '退出失败',
+        '请检查网络连接后重试',
+        [{ text: '确定' }]
+      );
+      throw error;
     }
   };
 

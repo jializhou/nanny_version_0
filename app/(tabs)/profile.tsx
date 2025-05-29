@@ -8,7 +8,8 @@ import {
   ScrollView,
   Platform,
   Switch,
-  Alert
+  Alert,
+  Pressable
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'react-native';
@@ -33,62 +34,13 @@ export default function ProfileScreen() {
   };
 
   const handleLogout = () => {
-    console.log('Logout button clicked');
-    
-    // 防止重复点击
-    if (isLoggingOut) {
-      return;
+    Alert.alert('测试', '退出按钮被点击了');
+    if (logout) {
+      logout();
+      router.replace('/(auth)/login');
+    } else {
+      Alert.alert('错误', 'logout 函数未定义');
     }
-
-    Alert.alert(
-      '退出登录',
-      '确定要退出登录吗？',
-      [
-        {
-          text: '取消',
-          style: 'cancel',
-        },
-        {
-          text: '确定',
-          style: 'destructive',
-          onPress: () => {
-            setIsLoggingOut(true);
-            
-            // 显示加载状态
-            Alert.alert(
-              '正在退出',
-              '请稍候...',
-              [],
-              { cancelable: false }
-            );
-
-            // 执行退出操作
-            setTimeout(async () => {
-              try {
-                await logout();
-                console.log('Logout successful');
-                
-                // 清除本地存储
-                await AsyncStorage.clear();
-                
-                // 强制重定向到登录页面
-                router.replace('/(auth)/login');
-              } catch (error) {
-                console.error('Logout error:', error);
-                Alert.alert(
-                  '退出失败',
-                  '请检查网络连接后重试',
-                  [{ text: '确定' }]
-                );
-              } finally {
-                setIsLoggingOut(false);
-              }
-            }, 500); // 添加小延迟以确保用户看到加载状态
-          },
-        },
-      ],
-      { cancelable: true }
-    );
   };
 
   const handlePostJob = () => {
@@ -274,20 +226,22 @@ export default function ProfileScreen() {
         <LanguageToggle />
       </View>
 
-      <TouchableOpacity 
-        style={{ 
-          ...styles.logoutButton, 
-          borderColor: colors.error,
-          opacity: isLoggingOut ? 0.5 : 1 
-        }}
-        onPress={handleLogout}
-        disabled={isLoggingOut}
-      >
-        <LogOut size={20} color={colors.error} />
-        <Text style={{ ...styles.logoutText, color: colors.error }}>
-          {isLoggingOut ? '退出中...' : t('profile.logout')}
-        </Text>
-      </TouchableOpacity>
+      {user && (
+        <Pressable 
+          onPress={handleLogout}
+          style={({ pressed }) => [
+            styles.logoutButton,
+            {
+              backgroundColor: pressed ? colors.error : 'transparent',
+              borderColor: colors.error,
+            }
+          ]}
+        >
+          <Text style={[styles.logoutText, { color: colors.error }]}>
+            退出登录
+          </Text>
+        </Pressable>
+      )}
 
       <Text style={{ ...styles.version, color: colors.textDim }}>
         {t('profile.version')} 1.0.0
@@ -431,23 +385,22 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Medium',
     marginRight: 12,
   },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    marginBottom: 24,
-  },
-  logoutText: {
-    fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
-    marginLeft: 8,
-  },
   version: {
     textAlign: 'center',
     fontSize: 12,
     fontFamily: 'Inter-Regular',
+  },
+  logoutButton: {
+    padding: 16,
+    marginHorizontal: 20,
+    marginVertical: 10,
+    borderRadius: 8,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoutText: {
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
