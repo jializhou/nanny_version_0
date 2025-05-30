@@ -21,6 +21,7 @@ import { I18nextProvider } from 'react-i18next';
 import i18n from '@/i18n/config';
 import { AuthProvider } from '@/contexts/AuthContext';
 import Colors from '@/constants/Colors';
+import { MessagesProvider } from '@/contexts/MessagesContext';
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
@@ -57,24 +58,26 @@ export default function RootLayout() {
   return (
     <I18nextProvider i18n={i18n}>
       <AuthProvider>
-        <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-        <Stack screenOptions={{ 
-          headerShown: false,
-          contentStyle: { 
-            backgroundColor: Colors[colorScheme ?? 'light'].background 
-          },
-        }}>
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="(auth)" options={{ presentation: 'modal' }} />
-          <Stack.Screen name="(forms)" />
-          <Stack.Screen name="caregiver/[id]" options={{ 
-            headerShown: true,
-            headerTitle: '',
-            headerBackTitle: '',
-            headerTintColor: Colors[colorScheme ?? 'light'].primary,
-          }} />
-          <Stack.Screen name="+not-found" options={{ title: 'Oops!' }} />
-        </Stack>
+        <MessagesProvider>
+          <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+          <Stack screenOptions={{ 
+            headerShown: false,
+            contentStyle: { 
+              backgroundColor: Colors[colorScheme ?? 'light'].background 
+            },
+          }}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="(auth)" options={{ presentation: 'modal' }} />
+            <Stack.Screen name="(forms)" />
+            <Stack.Screen name="caregiver/[id]" options={{ 
+              headerShown: true,
+              headerTitle: '',
+              headerBackTitle: '',
+              headerTintColor: Colors[colorScheme ?? 'light'].primary,
+            }} />
+            <Stack.Screen name="+not-found" options={{ title: 'Oops!' }} />
+          </Stack>
+        </MessagesProvider>
       </AuthProvider>
     </I18nextProvider>
   );

@@ -10,13 +10,24 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'react-native';
 import Colors from '@/constants/Colors';
-import { messages } from '@/data/messages';
 import { formatLastMessageTime } from '@/utils/dateFormatter';
+import { useRouter } from 'expo-router';
+import { useMessages } from '@/contexts/MessagesContext';
 
 export default function MessagesScreen() {
   const colorScheme = useColorScheme();
   const { t } = useTranslation();
   const colors = Colors[colorScheme ?? 'light'];
+  const router = useRouter();
+  const { messages, markAsRead } = useMessages();
+
+  const handleMessagePress = (id: string) => {
+    markAsRead(id);
+    router.push({
+      pathname: '/chat/[id]',
+      params: { id }
+    });
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -37,6 +48,7 @@ export default function MessagesScreen() {
               { backgroundColor: colors.card },
               !item.read && styles.unreadMessage
             ]}
+            onPress={() => handleMessagePress(item.id)}
           >
             <View style={styles.avatarContainer}>
               <Image source={{ uri: item.avatar }} style={styles.avatar} />
