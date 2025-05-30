@@ -69,6 +69,12 @@ export default function RootLayout() {
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="(auth)" options={{ presentation: 'modal' }} />
             <Stack.Screen name="(forms)" />
+            <Stack.Screen name="(user)" options={{
+              headerShown: true,
+              headerTitle: '',
+              headerBackTitle: '',
+              headerTintColor: Colors[colorScheme ?? 'light'].primary,
+            }} />
             <Stack.Screen name="caregiver/[id]" options={{ 
               headerShown: true,
               headerTitle: '',

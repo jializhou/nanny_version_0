@@ -142,19 +142,28 @@ export default function ProfileScreen() {
           {t('profile.account')}
         </Text>
         
-        <View style={{ ...styles.menuItem, backgroundColor: colors.card }}>
+        <TouchableOpacity 
+          style={{ ...styles.menuItem, backgroundColor: colors.card }}
+          onPress={() => {
+            // @ts-ignore
+            router.push('/(user)/personal-info');
+          }}
+        >
           <User size={20} color={colors.primary} />
           <Text style={{ ...styles.menuText, color: colors.text }}>
             {t('profile.personalInfo')}
           </Text>
-        </View>
+        </TouchableOpacity>
         
-        <View style={{ ...styles.menuItem, backgroundColor: colors.card }}>
+        <TouchableOpacity 
+          style={{ ...styles.menuItem, backgroundColor: colors.card }}
+          onPress={() => router.push('/(user)/payment-methods' as any)}
+        >
           <Settings size={20} color={colors.primary} />
           <Text style={{ ...styles.menuText, color: colors.text }}>
-            {t('profile.preferences')}
+            支付方式
           </Text>
-        </View>
+        </TouchableOpacity>
         
         <View style={{ ...styles.menuItemSwitch, backgroundColor: colors.card }}>
           <View style={styles.menuItemLeft}>
