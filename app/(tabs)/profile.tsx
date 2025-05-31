@@ -19,6 +19,7 @@ import Colors from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
 import LanguageToggle from '@/components/LanguageToggle';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function ProfileScreen() {
   const colorScheme = useColorScheme();
@@ -26,7 +27,7 @@ export default function ProfileScreen() {
   const colors = Colors[colorScheme ?? 'light'];
   const { user, logout } = useAuth();
   const router = useRouter();
-  const [notifications, setNotifications] = useState(false);
+  const [notifications, setNotifications] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogin = () => {
@@ -165,21 +166,23 @@ export default function ProfileScreen() {
           </Text>
         </TouchableOpacity>
         
-        <View style={{ ...styles.menuItemSwitch, backgroundColor: colors.card }}>
+        <TouchableOpacity 
+          style={{ ...styles.menuItemSwitch, backgroundColor: colors.card }}
+          onPress={() => router.push('/(user)/notification-settings' as any)}
+        >
           <View style={styles.menuItemLeft}>
             <Shield size={20} color={colors.primary} />
             <Text style={{ ...styles.menuText, color: colors.text }}>
               {t('profile.notifications')}
             </Text>
           </View>
-          <Switch
-            value={notifications}
-            onValueChange={setNotifications}
-            trackColor={{ false: '#d1d1d1', true: colors.primaryLight }}
-            thumbColor={notifications ? colors.primary : '#f4f3f4'}
-            ios_backgroundColor="#d1d1d1"
-          />
-        </View>
+          <View style={styles.menuItemRight}>
+            <Text style={{ ...styles.menuStatus, color: colors.textDim }}>
+              {notifications ? '已开启' : '已关闭'}
+            </Text>
+            <Ionicons name="chevron-forward" size={20} color={colors.textDim} />
+          </View>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.section}>
@@ -378,6 +381,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  menuItemRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   menuText: {
     fontSize: 16,
     fontFamily: 'Inter-Medium',
@@ -411,5 +418,10 @@ const styles = StyleSheet.create({
   logoutText: {
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  menuStatus: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    marginRight: 8,
   },
 });
