@@ -15,6 +15,7 @@ import { useColorScheme } from 'react-native';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { ArrowLeft } from 'lucide-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function FindWorkScreen() {
   const colorScheme = useColorScheme();
@@ -64,8 +65,8 @@ export default function FindWorkScreen() {
 
   const handleSubmit = () => {
     // Validate required fields
-    const requiredFields = ['name', 'age', 'phone', 'workHistory'];
-    const missingFields = requiredFields.filter(field => !formData[field]);
+    const requiredFields = ['name', 'age', 'phone', 'workHistory'] as const;
+    const missingFields = requiredFields.filter(field => !formData[field as keyof typeof formData]);
     
     if (missingFields.length > 0) {
       Alert.alert('提示', '请填写所有必填项');
@@ -83,10 +84,32 @@ export default function FindWorkScreen() {
         },
         {
           text: '确定',
-          onPress: () => {
-            // Here you would typically make an API call
-            Alert.alert('成功', '求职信息已发布');
-            router.back();
+          onPress: async () => {
+            try {
+              // TODO: Replace with actual API call
+              // Simulating API call with timeout
+              await new Promise(resolve => setTimeout(resolve, 1000));
+              
+              // Store in AsyncStorage
+              const jobSeekingPosts = await AsyncStorage.getItem('jobSeekingPosts') || '[]';
+              const posts = JSON.parse(jobSeekingPosts);
+              
+              const newPost = {
+                id: Date.now().toString(),
+                ...formData,
+                createdAt: new Date().toISOString(),
+                status: 'active'
+              };
+              
+              posts.push(newPost);
+              await AsyncStorage.setItem('jobSeekingPosts', JSON.stringify(posts));
+              
+              Alert.alert('成功', '求职信息已发布');
+              router.back();
+            } catch (error) {
+              Alert.alert('错误', '发布失败，请重试');
+              console.error('Error submitting job seeking post:', error);
+            }
           }
         }
       ]

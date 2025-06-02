@@ -192,21 +192,21 @@ export default function ProfileScreen() {
 
         <TouchableOpacity 
           style={{ ...styles.menuItem, backgroundColor: colors.card }}
-          onPress={handlePostJob}
+          onPress={() => router.push('/my-jobs' as any)}
         >
           <Briefcase size={20} color={colors.primary} />
           <Text style={{ ...styles.menuText, color: colors.text }}>
-            招聘阿姨
+            我的招聘
           </Text>
         </TouchableOpacity>
         
         <TouchableOpacity 
           style={{ ...styles.menuItem, backgroundColor: colors.card }}
-          onPress={handleFindWork}
+          onPress={() => router.push('/my-applications' as any)}
         >
           <Search size={20} color={colors.primary} />
           <Text style={{ ...styles.menuText, color: colors.text }}>
-            阿姨求职
+            我的求职
           </Text>
         </TouchableOpacity>
 
